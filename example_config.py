@@ -5,7 +5,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 MYSQL_USERNAME = ''
 MYSQL_PASSWORD = ''
 MYSQL_HOST = 'localhost'
-MYSQL_DB = 'shapeshift2'
+MYSQL_DB = 'shapeshift'
 
 class Config:
     SECRET_KEY = 'secret-key'  
