@@ -118,6 +118,38 @@ def submit_profile_data():
 
     return jsonify(message='Profile data submitted successfully'), 200
 
+
+@main_bp.route('/api/user/profile', methods=['GET'])
+@login_required
+def get_user_profile():
+    user_id = current_user.user_id
+
+    # Fetch user goal, info, and nutrition data
+    user_goal = UserGoal.query.filter_by(user_id=user_id).first()
+    user_info = UserInfo.query.filter_by(user_id=user_id).first()
+    user_nutrition = UserNutrition.query.filter_by(user_id=user_id).first()
+
+    # Prepare the response data
+    response_data = {
+        'id': current_user.user_id,
+        'name': current_user.name,
+        'email': current_user.email,
+        'goals': {
+            'weight_goal': user_goal.weight_goal.capitalize() if user_goal else None,
+            'cardio_goal': user_goal.cardio_goal if user_goal else None,
+            'resistance_goal': user_goal.resistance_goal if user_goal else None,
+        } if user_goal else None,
+        'diet_type': user_info.diet.strip('DietType.').capitalize() if user_info else None,
+        'calories': user_nutrition.calories if user_nutrition else None,
+        'macronutrients': {
+            'protein': user_nutrition.protein if user_nutrition else None,
+            'fat': user_nutrition.fat if user_nutrition else None,
+            'carbs': user_nutrition.carbs if user_nutrition else None,
+        } if user_nutrition else None
+    }
+
+    return jsonify(response_data), 200
+
 @main_bp.route('/submit-mealplan-data', methods=['POST'])
 @login_required
 def submit_mealplan_data():
@@ -132,7 +164,7 @@ def submit_mealplan_data():
     plan_length = data.get('planDuration')
 
     # Validate required fields
-    if not all([food_preferences, food_avoidances, meals_per_day, plan_length]):
+    if not all([ meals_per_day, plan_length]):
         return jsonify({"error": "Missing meal plan fields"}), 400
 
     mealplan_preference = UserMealPlanPreference(
