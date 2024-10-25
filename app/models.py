@@ -20,6 +20,7 @@ class User(UserMixin, db.Model):
     goals = db.relationship('UserGoal', backref='user', lazy=True)
     info = db.relationship('UserInfo', backref='user', uselist=False, lazy=True)
     meal_plan_preferences = db.relationship('UserMealPlanPreference', backref='user', lazy=True)
+    nutrition = db.relationship('UserNutrition', backref='user', uselist=False)
 
     def get_id(self):
         return str(self.user_id)
@@ -66,3 +67,14 @@ class UserMealPlanPreference(db.Model):
 
     def __repr__(self):
         return f"<UserMealPlanPreference {self.user_id}>"
+    
+
+class UserNutrition(db.Model):
+    __tablename__ = 'UserNutrition'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
+    calories = db.Column(db.Integer, nullable=False)
+    protein = db.Column(db.Float, nullable=False)
+    fat = db.Column(db.Float, nullable=False)
+    carbs = db.Column(db.Float, nullable=False)
