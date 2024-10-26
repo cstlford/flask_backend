@@ -11,6 +11,7 @@ from app.utils.nutrition import (
     DietType,
     ActivityLevel
 )
+from app.utils.llm import generate_meal_plan_llm
 
 
 @main_bp.route('/potato', methods=['GET'])
@@ -150,44 +151,54 @@ def get_user_profile():
 
     return jsonify(response_data), 200
 
-@main_bp.route('/submit-mealplan-data', methods=['POST'])
-@login_required
-def submit_mealplan_data():
+@main_bp.route('/generate-meal-plan', methods=['POST'])
+def generate_meal_plan1():
     data = request.get_json()
 
     if not data:
         return jsonify({"error": "No JSON data received"}), 400
 
+    # Extract data from request
     food_preferences = data.get('flavorPreferences')  
     food_avoidances = data.get('foodsToAvoid')
     meals_per_day = data.get('mealCount')
     plan_length = data.get('planDuration')
 
     # Validate required fields
-    if not all([ meals_per_day, plan_length]):
+    if not all([meals_per_day, plan_length]):
         return jsonify({"error": "Missing meal plan fields"}), 400
 
-    mealplan_preference = UserMealPlanPreference(
-        user_id=current_user.user_id,
-        food_preferences=food_preferences,
-        food_avoidances=food_avoidances,
-        meals_per_day=meals_per_day,
-        plan_length=plan_length
-    )
+    # Retrieve user data from the database
+    user_id = current_user.user_id
 
+    user_info = UserInfo.query.filter_by(user_id=user_id).first()
+    user_nutrition = UserNutrition.query.filter_by(user_id=user_id).first()
+
+    # Extract the necessary data
+    diet_type = user_info.diet.strip('DietType.').capitalize() if user_info and user_info.diet else None
+    calories = user_nutrition.calories if user_nutrition else None
+    macros = {
+        'protein': user_nutrition.protein if user_nutrition else None,
+        'fat': user_nutrition.fat if user_nutrition else None,
+        'carbs': user_nutrition.carbs if user_nutrition else None,
+    }
+
+    # Prepare the data for the LLM
+    user_data = {
+        'diet_type': diet_type,
+        'calories': calories,
+        'macros': macros,
+        'foods_to_avoid': food_avoidances,
+        'flavor_preferences': food_preferences,
+        'meal_count': meals_per_day,
+        'plan_duration': plan_length,
+    }
+
+    # Call the LLM function to generate the meal plan
     try:
-        db.session.add(mealplan_preference)
-        db.session.commit()
+        meal_plan = generate_meal_plan_llm(user_data)
     except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": "Failed to submit meal plan data"}), 500
-
-    return jsonify(message='Meal plan data submitted successfully'), 200
-
-
-@main_bp.route('/generate-meal-plan', methods=['POST'])
-def generate_meal_plan():
-
+        return jsonify({'error': str(e)}), 500
     meals = [
         [
             {
@@ -283,6 +294,5 @@ def generate_meal_plan():
         ],
         # Add additional meal data as needed
     ]
-
-    # Return the dummy data as JSON
-    return jsonify(meals)
+    # Return the generated meal plan
+    return jsonify({'ai':meal_plan,'meals':meals}), 200
