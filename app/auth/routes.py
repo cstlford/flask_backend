@@ -47,6 +47,7 @@ def login():
         return jsonify({"error": "Missing data"}), 400
 
     user = User.query.filter_by(email=email).first()
+    
     if user and bcrypt.check_password_hash(user.password_hash, password):
         login_user(user)
         return jsonify({"message": "Logged in successfully"}), 200

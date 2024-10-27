@@ -13,7 +13,9 @@ from app.utils.nutrition import (
 )
 from app.utils.llm import generate_meal_plan_llm
 
-
+@main_bp.route('/', methods=['Get'])
+def main():
+    return 'Connection Successful'
 @main_bp.route('/potato', methods=['GET'])
 def potato():
     return 'hello potato'

@@ -1,7 +1,9 @@
 from openai import OpenAI
 import time
-client = OpenAI()
+import os
 
+key = os.environ("OPENAI_API_KEY")
+client = OpenAI(api_key= key)
 def generate_meal_plan_llm(user_data):
 
     plan_duration = {user_data['plan_duration']}
