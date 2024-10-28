@@ -11,7 +11,7 @@ from app.utils.nutrition import (
     DietType,
     ActivityLevel
 )
-from app.utils.llm import generate_meal_plan_llm
+from app.utils.llm import generate_meal_plan_cheap_llm, generate_meal_plan_expensive
 
 @main_bp.route('/', methods=['Get'])
 def main():
@@ -197,10 +197,23 @@ def generate_meal_plan1():
     }
 
     # Call the LLM function to generate the meal plan
-    try:
-        meal_plan = generate_meal_plan_llm(user_data)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    selector = user_data['flavor_preferences'].find("Show me macros")
+
+    ## expensive 
+    if selector != -1:
+        user_data['flavor_preferences'] = user_data['flavor_preferences'][selector+1:]
+        try:
+            meal_plan = generate_meal_plan_expensive(user_data)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    
+    ## cheap
+    else:
+        try:
+            meal_plan = generate_meal_plan_cheap_llm(user_data)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+        
     meals = [
         [
             {
@@ -297,4 +310,4 @@ def generate_meal_plan1():
         # Add additional meal data as needed
     ]
     # Return the generated meal plan
-    return jsonify({'ai':meal_plan,'meals':meals}), 200
+    return jsonify({'ai':meal_plan,'meals':meal_plan}), 200
