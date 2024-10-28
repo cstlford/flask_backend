@@ -1,8 +1,12 @@
 from openai import OpenAI
 import time
 import os
+from dotenv import load_dotenv
 
-key = os.environ("OPENAI_API_KEY")
+
+load_dotenv()
+key = os.environ["OPENAI_API_KEY"]
+
 client = OpenAI(api_key= key)
 def generate_meal_plan_llm(user_data):
 
