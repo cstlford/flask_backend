@@ -2,6 +2,7 @@ from openai import OpenAI
 import time
 import os
 from dotenv import load_dotenv
+import re
 
 
 load_dotenv()
@@ -491,6 +492,9 @@ def generate_meal_plan_expensive(data=None):
         end = time.time()
 
     print(f"Time to execute: {end - start}")
+    print(plan)
 
     return plan
+
+
 
