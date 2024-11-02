@@ -11,7 +11,8 @@ from app.utils.nutrition import (
     DietType,
     ActivityLevel
 )
-from app.utils.llm import generate_meal_plan_cheap_llm, generate_meal_plan_expensive
+
+from app.utils.llm import generate_meal_plan_cheap_llm, generate_meal_plan_expensive, chat_with_coach
 
 @main_bp.route('/', methods=['Get'])
 def main():
@@ -184,6 +185,7 @@ def generate_meal_plan1():
         'fat': user_nutrition.fat if user_nutrition else None,
         'carbs': user_nutrition.carbs if user_nutrition else None,
     }
+  
 
     # Prepare the data for the LLM
     user_data = {
@@ -195,6 +197,25 @@ def generate_meal_plan1():
         'meal_count': meals_per_day,
         'plan_duration': plan_length,
     }
+    user_meal_plan_preference = UserMealPlanPreference(
+
+            user_id=user_id,
+            food_preferences=food_preferences,
+            food_avoidances=food_avoidances,
+            meals_per_day=meals_per_day,
+            plan_length= plan_length,
+           
+
+    )
+    try:
+      
+        db.session.add(user_meal_plan_preference)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to submit profile data"}), 500
+
+
 
     # Call the LLM function to generate the meal plan
     selector = user_data['flavor_preferences'].find("Show me macros")
@@ -311,3 +332,32 @@ def generate_meal_plan1():
     ]
     # Return the generated meal plan
     return jsonify({'ai':meal_plan,'meals':meal_plan}), 200
+
+@main_bp.route('/chat/', methods=['POST'])
+@login_required
+def chat():
+    user_id = current_user.user_id
+
+    # Fetch user goal, info, and nutrition data
+    user_goal = UserGoal.query.filter_by(user_id=user_id).first()
+    user_info = UserInfo.query.filter_by(user_id=user_id).first()
+    user_nutrition = UserNutrition.query.filter_by(user_id=user_id).first()
+
+    # Prepare the response data
+    response_data = {
+        'id': current_user.user_id,
+        'name': current_user.name,
+        'email': current_user.email,
+        'goals': {
+            'weight_goal': user_goal.weight_goal.capitalize() if user_goal else None,
+            'cardio_goal': user_goal.cardio_goal if user_goal else None,
+            'resistance_goal': user_goal.resistance_goal if user_goal else None,
+        } if user_goal else None,
+        'diet_type': user_info.diet.strip('DietType.').capitalize() if user_info else None,
+        'calories': user_nutrition.calories if user_nutrition else None,
+        'macronutrients': {
+            'protein': user_nutrition.protein if user_nutrition else None,
+            'fat': user_nutrition.fat if user_nutrition else None,
+            'carbs': user_nutrition.carbs if user_nutrition else None,
+        } if user_nutrition else None
+    }
