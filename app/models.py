@@ -78,3 +78,4 @@ class UserNutrition(db.Model):
     protein = db.Column(db.Float, nullable=False)
     fat = db.Column(db.Float, nullable=False)
     carbs = db.Column(db.Float, nullable=False)
+

@@ -208,7 +208,6 @@ def generate_meal_plan1():
 
     )
     try:
-      
         db.session.add(user_meal_plan_preference)
         db.session.commit()
     except Exception as e:
@@ -231,7 +230,18 @@ def generate_meal_plan1():
     ## cheap
     else:
         try:
+
+            """
+            "title": "Eggs & Toast",
+                "calories": 350,
+                "macros": {"protein": 20, "carbs": 40, "fat": 10},
+                "ingredients": ["2 Eggs", "1Tb Butter", "1pc Toast"],
+                "directions": "",
+            
+            """
             meal_plan = generate_meal_plan_cheap_llm(user_data)
+       
+
         except Exception as e:
             return jsonify({'error': str(e)}), 500
         
@@ -333,31 +343,57 @@ def generate_meal_plan1():
     # Return the generated meal plan
     return jsonify({'ai':meal_plan,'meals':meal_plan}), 200
 
-@main_bp.route('/chat/', methods=['POST'])
+@main_bp.route('/chat', methods=['POST'])
 @login_required
 def chat():
-    user_id = current_user.user_id
+    
+    data = request.get_json()
 
+    if not data:
+        return jsonify(message='No JSON data received'), 400
+    
+   
+    user_response = data.get("message")
+
+    user_id = current_user.user_id
+    # UserMealPlanPreference, UserNutrition, UserMealPlan
     # Fetch user goal, info, and nutrition data
-    user_goal = UserGoal.query.filter_by(user_id=user_id).first()
+    # user_goal = UserGoal.query.filter_by(user_id=user_id).first() or {"Empty Set"}
     user_info = UserInfo.query.filter_by(user_id=user_id).first()
     user_nutrition = UserNutrition.query.filter_by(user_id=user_id).first()
-
-    # Prepare the response data
+    user_meal_plan_preference = UserMealPlanPreference.query.filter_by(user_id=user_id).first()
+    user_goal = UserGoal.query.filter_by(user_id=user_id).first()
+    """
+            weight_goal = db.Column(db.String(64))
+            cardio_goal = db.Column(db.String(64))
+            resistance_goal = db.Column(db.String(64))
+    
+    """
+  
     response_data = {
-        'id': current_user.user_id,
-        'name': current_user.name,
-        'email': current_user.email,
-        'goals': {
-            'weight_goal': user_goal.weight_goal.capitalize() if user_goal else None,
-            'cardio_goal': user_goal.cardio_goal if user_goal else None,
-            'resistance_goal': user_goal.resistance_goal if user_goal else None,
-        } if user_goal else None,
-        'diet_type': user_info.diet.strip('DietType.').capitalize() if user_info else None,
-        'calories': user_nutrition.calories if user_nutrition else None,
-        'macronutrients': {
-            'protein': user_nutrition.protein if user_nutrition else None,
-            'fat': user_nutrition.fat if user_nutrition else None,
-            'carbs': user_nutrition.carbs if user_nutrition else None,
-        } if user_nutrition else None
+        "User Name": current_user.name,
+        "User Birthday": user_info.birthday,
+        "User Weight": user_info.weight,
+        "User Height": user_info.height,
+        "User Sex": user_info.sex,
+        "User Diet Type": user_info.diet,
+        "User Activity Level": user_info.activity_level,
+        "User Food Preferences": user_meal_plan_preference.food_preferences,
+        "User Food Restrictions": user_meal_plan_preference.food_avoidances,
+        "User Calories Intake": user_nutrition.calories,
+        "User Protein Per Day": user_nutrition.protein,
+        "User Fat Per Day": user_nutrition.fat,
+        "User Carbs Per Day": user_nutrition.carbs,
+        "User Weight Goal": user_goal.weight_goal,
+        "User Cardio Goal": user_goal.cardio_goal,
+        "User Resistance Goal": user_goal.resistance_goal
+
     }
+    ai_response = chat_with_coach(user_info=response_data, user_message=user_response)
+    response = {
+        'message': ai_response.content if hasattr(ai_response, 'content') else str(ai_response),
+        'role': 'assistant'
+    }
+    
+    return jsonify(response)
+    

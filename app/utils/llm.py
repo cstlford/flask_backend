@@ -498,32 +498,23 @@ def generate_meal_plan_expensive(data=None):
 
 
 
-def chat_with_coach(data):
-    import os
-    import google.generativeai as genai
-
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-
-    # Create the model
-    generation_config = {
-    "temperature": 1,
-    "top_p": 0.95,
-    "top_k": 40,
-    "max_output_tokens": 8192,
-    "response_mime_type": "application/json",
-    }
-
-    model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash-002",
-    generation_config=generation_config,
+def chat_with_coach(user_info, user_message):
+  
+ 
+    completion = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+               {
+                "role": "user",
+                "content": f"{user_message}"
+            },
+            {"role": "system", "content": f"""You are a personalized nutrition coach in a production environment. 
+             Your mission is to provide tailored nutrition advice based on user data, including health goals, dietary preferences, 
+             and lifestyle factors. Deliver evidence-based recommendations that empower users to make informed nutritional decisions, 
+             ensuring your interactions are efficient and professional {user_info}"""
+             },
+         
+        ]
     )
 
-    chat_session = model.start_chat(
-    history=[
-        data
-    ]
-    )
-
-    response = chat_session.send_message("")
-
-    return response
+    return(completion.choices[0].message)
