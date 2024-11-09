@@ -2,7 +2,7 @@
 from flask import request, jsonify
 from app.main import main_bp
 from app import db
-from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition
+from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, Chat
 from flask_login import login_required, current_user
 from datetime import datetime
 from app.utils.nutrition import (
@@ -20,6 +20,19 @@ def main():
 @main_bp.route('/potato', methods=['GET'])
 def potato():
     return 'hello potato'
+@main_bp.route('/start_chat_session', methods=['GET'])
+def start_chat_session():
+ 
+    chat_session = Chat()
+    try:
+        
+        db.session.add(chat_session)
+        db.session.commit()
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to submit profile data"}), 500
+    
 
 @main_bp.route('/submit-profile-data', methods=['POST'])
 @login_required
@@ -153,6 +166,9 @@ def get_user_profile():
     }
 
     return jsonify(response_data), 200
+
+    
+
 
 @main_bp.route('/generate-meal-plan', methods=['POST'])
 def generate_meal_plan1():
@@ -354,11 +370,7 @@ def chat():
     
    
     user_response = data.get("message")
-
     user_id = current_user.user_id
-    # UserMealPlanPreference, UserNutrition, UserMealPlan
-    # Fetch user goal, info, and nutrition data
-    # user_goal = UserGoal.query.filter_by(user_id=user_id).first() or {"Empty Set"}
     user_info = UserInfo.query.filter_by(user_id=user_id).first()
     user_nutrition = UserNutrition.query.filter_by(user_id=user_id).first()
     user_meal_plan_preference = UserMealPlanPreference.query.filter_by(user_id=user_id).first()

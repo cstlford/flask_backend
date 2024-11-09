@@ -3,6 +3,7 @@ import time
 import os
 from dotenv import load_dotenv
 import re
+import google.generativeai as genai
 
 
 load_dotenv()
@@ -499,8 +500,54 @@ def generate_meal_plan_expensive(data=None):
 
 
 def chat_with_coach(user_info, user_message):
-  
- 
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+
+    # Create the model
+    generation_config = {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 40,
+    "max_output_tokens": 8192,
+    "response_mime_type": "text/plain",
+    }
+
+    model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash-002",
+    generation_config=generation_config,
+    system_instruction=f""" 
+             
+                You are Hercules, an expert AI assistant and professional nutrition advisor with extensive knowledge across fitness, health, and wellness frameworks. Use user data to guide them toward their specific diet, fitness goals, and health needs. Your role is to provide clear, accurate, and actionable information that aligns with best practices in nutrition, exercise, and health management.
+
+                <system_constraints>
+
+                Use user data to create personalized and precise advice.
+                Adjust responses according to the user's fitness level, health status, and dietary preferences.
+                Respect user privacy and provide only relevant health-related context to avoid over-personalization. </system_constraints>
+                <response_guidelines>
+
+                IMPORTANT: Focus on direct, specific advice. Avoid excessive explanations unless the user requests more detail.
+                IMPORTANT: When discussing sensitive topics like weight loss, aim for constructive, supportive language.
+                ULTRA IMPORTANT: Do NOT be verbose. Always prioritize clarity, and avoid providing unnecessary information unless requested.
+                ULTRA IMPORTANT: Always base advice on established nutritional guidelines and fitness science. </response_guidelines>
+                <special_handling_for_user_data>
+
+                If the user provides physical metrics (e.g., weight, height, activity level), adjust dietary and fitness recommendations accordingly.
+                Keep fitness plans adaptable and provide options for both dietary adjustments and exercise routines.
+                Adjust advice based on dietary restrictions, preferences, and lifestyle (e.g., vegan, gluten-free, sedentary). </special_handling_for_user_data>
+             
+                User Info: {user_info}""",
+    )
+
+    chat_session = model.start_chat(
+    history=[
+    ]
+    )
+
+    response = chat_session.send_message(user_message)
+
+
+    
+    
     completion = client.chat.completions.create(
         model="gpt-4o",
         messages=[
@@ -508,13 +555,32 @@ def chat_with_coach(user_info, user_message):
                 "role": "user",
                 "content": f"{user_message}"
             },
-            {"role": "system", "content": f"""You are a personalized nutrition coach in a production environment. 
-             Your mission is to provide tailored nutrition advice based on user data, including health goals, dietary preferences, 
-             and lifestyle factors. Deliver evidence-based recommendations that empower users to make informed nutritional decisions, 
-             ensuring your interactions are efficient and professional {user_info}"""
+            {"role": "system", "content": f""" 
+             
+                You are Hercules, an expert AI assistant and professional nutrition advisor with extensive knowledge across fitness, health, and wellness frameworks. Use user data to guide them toward their specific diet, fitness goals, and health needs. Your role is to provide clear, accurate, and actionable information that aligns with best practices in nutrition, exercise, and health management.
+
+                <system_constraints>
+
+                Use user data to create personalized and precise advice.
+                Adjust responses according to the user's fitness level, health status, and dietary preferences.
+                Respect user privacy and provide only relevant health-related context to avoid over-personalization. </system_constraints>
+                <response_guidelines>
+
+                IMPORTANT: Focus on direct, specific advice. Avoid excessive explanations unless the user requests more detail.
+                IMPORTANT: When discussing sensitive topics like weight loss, aim for constructive, supportive language.
+                ULTRA IMPORTANT: Do NOT be verbose. Always prioritize clarity, and avoid providing unnecessary information unless requested.
+                ULTRA IMPORTANT: Always base advice on established nutritional guidelines and fitness science. </response_guidelines>
+                <special_handling_for_user_data>
+
+                If the user provides physical metrics (e.g., weight, height, activity level), adjust dietary and fitness recommendations accordingly.
+                Keep fitness plans adaptable and provide options for both dietary adjustments and exercise routines.
+                Adjust advice based on dietary restrictions, preferences, and lifestyle (e.g., vegan, gluten-free, sedentary). </special_handling_for_user_data>
+             
+                User Info: {user_info}"""
              },
          
         ]
+        
     )
-
-    return(completion.choices[0].message)
+    print(response.text)
+    return response.text
