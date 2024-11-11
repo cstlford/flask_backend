@@ -23,6 +23,7 @@ def create_app(config_class=Config):
 
     # Configure CORS
     CORS(app, supports_credentials=True, origins='*')
+
     # Register blueprints
     from app.auth.routes import auth_bp
     from app.main.routes import main_bp
