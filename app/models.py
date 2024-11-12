@@ -80,16 +80,31 @@ class UserNutrition(db.Model):
     fat = db.Column(db.Float, nullable=False)
     carbs = db.Column(db.Float, nullable=False)
 
+    def __repr__(self):
+        return f"<UserNutrition {self.user_id}>"
+
 class Chat(db.Model):
     __tablename__ = 'Chat'
 
-    chat_id = db.Column(db.Integer, primary_key=True)
-class Chat_Line(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+class ChatLine(db.Model):
     __tablename__ = 'ChatLine'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
-    chat_id = db.Column(db.Integer, db.ForeignKey(Chat.chat_id), nullable=False)
+    chat_id = db.Column(db.Integer, db.ForeignKey('Chat.id'), nullable=False)
     chat_text = db.Column(db.Text)
     date_added = db.Column(db.DateTime, default=datetime.datetime.now)
 
+
+class MealPlan(db.Model):
+    __tablename__ = 'MealPlans'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
+    meals = db.Column(db.JSON, nullable=False) 
+
+    user = db.relationship('User', backref=db.backref('MealPlans', lazy=True))
+
+    def __repr__(self):
+        return f"<MealPlan {self.user_id}>"

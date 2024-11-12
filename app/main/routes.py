@@ -1,8 +1,8 @@
-# app/main/routes.py
 from flask import request, jsonify
 from app.main import main_bp
 from app import db
-from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, Chat
+from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan
+from app.models import Chat
 from flask_login import login_required, current_user
 from datetime import datetime
 from app.utils.nutrition import (
@@ -363,7 +363,7 @@ def generate_meal_plan1():
         # Add additional meal data as needed
     ]
     # Return the generated meal plan
-    return jsonify({'ai':meal_plan,'meals':meal_plan}), 200
+    return jsonify({'ai':meal_plan,'meals':meals}), 200
 
 @main_bp.route('/chat', methods=['POST'])
 @login_required
@@ -415,3 +415,24 @@ def chat():
     
     return jsonify(response)
     
+
+@main_bp.route('/save-meal-plan', methods=['POST'])
+@login_required
+def save_meal_plan():
+    data = request.get_json()
+    meals = data.get('meals')
+    if not meals:
+        return jsonify({'error': 'No meal data provided'}), 400
+
+    try:
+        meal_plan = MealPlan(
+            user_id=current_user.user_id,
+            meals=meals 
+        )
+        db.session.add(meal_plan)
+        db.session.commit()
+        return jsonify({'message': 'Meal plan saved successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error saving meal plan: {e}")
+        return jsonify({'error': 'Failed to save meal plan'}), 500
