@@ -2,7 +2,7 @@ from flask import request, jsonify
 from app.main import main_bp
 from app import db
 from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan
-from app.models import Chat
+from app.models import Chat, UserWeightHistory
 from flask_login import login_required, current_user
 from datetime import datetime
 from app.utils.nutrition import (
@@ -174,6 +174,41 @@ def get_user_profile():
     return jsonify(response_data), 200
 
     
+@main_bp.route('/submit-weight-history', methods=['POST'])
+@login_required
+def submit_weight_history():
+    user_id = current_user.user_id
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No JSON data received"}), 400
+    weight = data.get('weight')
+    date = data.get('date')
+    weight_history = UserWeightHistory(
+        user_id = user_id,
+        weight = weight,
+        date_selected = date
+    )
+    try:
+        db.session.add(weight_history)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to submit profile data"}), 500
+
+@main_bp.route('/get-weight-history', methods=['GET'])
+@login_required
+def get_weight_history():
+    user_id = current_user.user_id
+    weight_history = UserWeightHistory.query.filter_by(user_id=user_id).all()
+    
+    if not weight_history:
+        return jsonify({"message": "No weight history found"}), 404
+
+    # Extracting the weight and date from the result
+    weight_data = [{"weight": entry.weight, "date": entry.date_selected} for entry in weight_history]
+
+    return jsonify({"weight_history": weight_data}), 200
+
 
 
 @main_bp.route('/generate-meal-plan', methods=['POST'])

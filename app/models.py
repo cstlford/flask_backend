@@ -97,6 +97,7 @@ class UserWeightHistory(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
     weight = db.Column(db.Float, nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.datetime.now)
+    date_selected = db.Column(db.DateTime, default=datetime.datetime.now)
 
     def __repr__(self):
             return f"<UserWeightHistory {self.user_id} - {self.weight} on {self.date_recorded}>"

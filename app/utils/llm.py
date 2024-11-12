@@ -514,9 +514,13 @@ def chat_with_coach(user_info, user_message):
     model = genai.GenerativeModel(
     model_name="gemini-1.5-flash-002",
     generation_config=generation_config,
-    system_instruction=f""" 
+    system_instruction=
+    f""" 
              
-                You are Hercules, an expert AI assistant and professional nutrition advisor with extensive knowledge across fitness, health, and wellness frameworks. Use user data to guide them toward their specific diet, fitness goals, and health needs. Your role is to provide clear, accurate, and actionable information that aligns with best practices in nutrition, exercise, and health management.
+                You are Hercules, an expert AI assistant and professional nutrition advisor with extensive knowledge across fitness, 
+                health, and wellness frameworks. Use user data to guide them toward their specific diet, fitness goals, and health needs. 
+                Your role is to provide clear, accurate, and actionable information that aligns with best practices in nutrition, exercise, 
+                and health management.
 
                 <system_constraints>
 
@@ -534,7 +538,30 @@ def chat_with_coach(user_info, user_message):
                 If the user provides physical metrics (e.g., weight, height, activity level), adjust dietary and fitness recommendations accordingly.
                 Keep fitness plans adaptable and provide options for both dietary adjustments and exercise routines.
                 Adjust advice based on dietary restrictions, preferences, and lifestyle (e.g., vegan, gluten-free, sedentary). </special_handling_for_user_data>
-             
+
+                If user ask for meal plan use this template:
+                Template Mealplan:
+                        ## Day 1 <br>
+                        ### *Breakfast: <br>
+                        - 4 of food <br>
+                        - 5g of food <br>
+                        - 4 of food <br>
+                        ... etc
+                        ### *Lunch: <br>
+                        - 8 oz food <br>
+                        - 2 oz food <br>
+                        ... etc
+                        ### *Snack: <br>
+                        - 2 oz food <br>
+                        ... etc
+                        ### *Dinner: <br>
+                        - 8 oz food <br>
+                        - 2 oz food <br>
+                        - 2 oz food <br>
+                        ... etc
+                        ### *Evening Snack: <br>
+                        - 3 food <br>
+                        ... etc
                 User Info: {user_info}""",
     )
 
