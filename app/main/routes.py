@@ -436,3 +436,25 @@ def save_meal_plan():
         db.session.rollback()
         print(f"Error saving meal plan: {e}")
         return jsonify({'error': 'Failed to save meal plan'}), 500
+
+
+@main_bp.route('/get-meal-plans', methods=['GET'])
+@login_required
+def get_meal_plans():
+    try:
+        # Query all meal plans for the current user
+        meal_plans = MealPlan.query.filter_by(user_id=current_user.user_id).all()
+        
+        # Serialize meal plans
+        serialized_meal_plans = []
+        for plan in meal_plans:
+            serialized_plan = {
+                'id': plan.id,
+                'meals': plan.meals,  
+            }
+            serialized_meal_plans.append(serialized_plan)
+        
+        return jsonify({'meal_plans': serialized_meal_plans}), 200
+    except Exception as e:
+        print(f"Error fetching meal plans: {e}")
+        return jsonify({'error': 'Failed to fetch meal plans'}), 500
