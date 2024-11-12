@@ -84,6 +84,9 @@ class Chat(db.Model):
     __tablename__ = 'Chat'
     chat_id = db.Column(db.Integer, primary_key=True)
 class Chat_Line(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+class ChatLine(db.Model):
     __tablename__ = 'ChatLine'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
@@ -101,3 +104,15 @@ class UserWeightHistory(db.Model):
             return f"<UserWeightHistory {self.user_id} - {self.weight} on {self.date_recorded}>"
 
 
+
+class MealPlan(db.Model):
+    __tablename__ = 'MealPlans'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
+    meals = db.Column(db.JSON, nullable=False) 
+
+    user = db.relationship('User', backref=db.backref('MealPlans', lazy=True))
+
+    def __repr__(self):
+        return f"<MealPlan {self.user_id}>"

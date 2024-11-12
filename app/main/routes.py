@@ -1,8 +1,8 @@
-# app/main/routes.py
 from flask import request, jsonify
 from app.main import main_bp
 from app import db
-from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, Chat
+from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan
+from app.models import Chat
 from flask_login import login_required, current_user
 from datetime import datetime
 from app.utils.nutrition import (
@@ -151,6 +151,12 @@ def get_user_profile():
         'id': current_user.user_id,
         'name': current_user.name,
         'email': current_user.email,
+        'height': user_info.height,
+        'weight': user_info.weight,
+        'birthday' : user_info.birthday,
+        'sex': user_info.sex,
+        'activity_level' : user_info.activity_level,
+        'diet':user_info.diet,
         'goals': {
             'weight_goal': user_goal.weight_goal.capitalize() if user_goal else None,
             'cardio_goal': user_goal.cardio_goal if user_goal else None,
@@ -357,7 +363,7 @@ def generate_meal_plan1():
         # Add additional meal data as needed
     ]
     # Return the generated meal plan
-    return jsonify({'ai':meal_plan,'meals':meal_plan}), 200
+    return jsonify({'ai':meal_plan,'meals':meals}), 200
 
 @main_bp.route('/chat', methods=['POST'])
 @login_required
@@ -409,3 +415,46 @@ def chat():
     
     return jsonify(response)
     
+
+@main_bp.route('/save-meal-plan', methods=['POST'])
+@login_required
+def save_meal_plan():
+    data = request.get_json()
+    meals = data.get('meals')
+    if not meals:
+        return jsonify({'error': 'No meal data provided'}), 400
+
+    try:
+        meal_plan = MealPlan(
+            user_id=current_user.user_id,
+            meals=meals 
+        )
+        db.session.add(meal_plan)
+        db.session.commit()
+        return jsonify({'message': 'Meal plan saved successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error saving meal plan: {e}")
+        return jsonify({'error': 'Failed to save meal plan'}), 500
+
+
+@main_bp.route('/get-meal-plans', methods=['GET'])
+@login_required
+def get_meal_plans():
+    try:
+        # Query all meal plans for the current user
+        meal_plans = MealPlan.query.filter_by(user_id=current_user.user_id).all()
+        
+        # Serialize meal plans
+        serialized_meal_plans = []
+        for plan in meal_plans:
+            serialized_plan = {
+                'id': plan.id,
+                'meals': plan.meals,  
+            }
+            serialized_meal_plans.append(serialized_plan)
+        
+        return jsonify({'meal_plans': serialized_meal_plans}), 200
+    except Exception as e:
+        print(f"Error fetching meal plans: {e}")
+        return jsonify({'error': 'Failed to fetch meal plans'}), 500
