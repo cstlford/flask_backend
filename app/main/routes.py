@@ -151,6 +151,12 @@ def get_user_profile():
         'id': current_user.user_id,
         'name': current_user.name,
         'email': current_user.email,
+        'height': user_info.height,
+        'weight': user_info.weight,
+        'birthday' : user_info.birthday,
+        'sex': user_info.sex,
+        'activity_level' : user_info.activity_level,
+        'diet':user_info.diet,
         'goals': {
             'weight_goal': user_goal.weight_goal.capitalize() if user_goal else None,
             'cardio_goal': user_goal.cardio_goal if user_goal else None,
