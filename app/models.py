@@ -83,9 +83,7 @@ class UserNutrition(db.Model):
 class Chat(db.Model):
     __tablename__ = 'Chat'
     chat_id = db.Column(db.Integer, primary_key=True)
-class Chat_Line(db.Model):
 
-    id = db.Column(db.Integer, primary_key=True)
 class ChatLine(db.Model):
     __tablename__ = 'ChatLine'
     id = db.Column(db.Integer, primary_key=True)
