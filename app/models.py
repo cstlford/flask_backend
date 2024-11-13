@@ -105,3 +105,17 @@ class MealPlan(db.Model):
 
     def __repr__(self):
         return f"<MealPlan {self.user_id}>"
+class Chat(db.Model):
+    __tablename__ = 'Chat'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
+    agent_text = db.Column(db.Text)
+    user_text = db.Column(db.Text)
+    date_selected = db.Column(db.DateTime, default=datetime.datetime.now)
+    def __repr__(self):
+        return f"<Chat(id={self.id}, user_id={self.user_id}, date_selected={self.date_selected})>"
+
+    def formatted_date(self):
+        return self.date_selected.strftime("%Y-%m-%d %H:%M:%S")
+
+
