@@ -38,10 +38,10 @@ def calculate(nutrient,output):
 
         # search for all instances of nutrient 
         if nutrient == "calories":
-            regex = "(\d{1,4})( cals)"
+            regex = r"(\d{1,4})( cals)"
         else:
-            regex = "(\d{1,4})(g "+nutrient+")"
-        amounts = re.findall(regex, output)
+            regex = rf"(\d{1,4})(g {nutrient})"  # Using raw f-string for dynamic nutrient
+            amounts = re.findall(regex, output)
 
         # sum nutrient
         for amount in amounts:
