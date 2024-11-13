@@ -3,4 +3,4 @@ venv/
 migrations/
 __pycache__/
 .venv_for_flask_backend/
-.env
+.env.venv_flask_back/
