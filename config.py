@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
+    DEBUG = True 
     # Session cookie settings
     SESSION_COOKIE_SAMESITE = 'None'  # Allows cookies to be sent cross-origin
     SESSION_COOKIE_SECURE = True  # Use this if you're using HTTPS
