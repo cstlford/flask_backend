@@ -419,7 +419,7 @@ def chat():
     user_goal = UserGoal.query.filter_by(user_id=user_id).first()
     chat_history_from_db = ChatLine.query.filter_by(user_id=user_id).all()
     for message in chat_history_from_db:
-        print(message)
+        print(message.text)
     """
             weight_goal = db.Column(db.String(64))
             cardio_goal = db.Column(db.String(64))
