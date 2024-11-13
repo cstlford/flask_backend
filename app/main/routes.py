@@ -417,6 +417,8 @@ def chat():
     user_nutrition = UserNutrition.query.filter_by(user_id=user_id).first()
     user_meal_plan_preference = UserMealPlanPreference.query.filter_by(user_id=user_id).first()
     user_goal = UserGoal.query.filter_by(user_id=user_id).first()
+    chat_history_from_db = ChatLine.query.filter_by(user_id=user_id).all()
+    print(chat_history.text)
     """
             weight_goal = db.Column(db.String(64))
             cardio_goal = db.Column(db.String(64))
@@ -454,7 +456,7 @@ def chat():
 
     # )
    
-    ai_response, chat_history = chat_with_coach(user_info=response_data, user_message=user_response, chat_history=chat_history_list)
+    ai_response, chat_history = chat_with_coach(user_info=response_data, user_message=user_response, chat_history=chat_history_from_db)
     chat_line = ChatLine(
     user_id = user_id,
     chat_text = f"Agent: {ai_response}, User: {user_response}"
