@@ -1,14 +1,11 @@
 from flask import request, jsonify
 from app.main import main_bp
 from app import db
-<<<<<<< HEAD
 from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan
-=======
-from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan, ChatLine
->>>>>>> 141efa9a1843b54a948835d490a2b6aae9438ada
 from app.models import UserWeightHistory
 from flask_login import login_required, current_user
 from datetime import datetime
+
 from app.utils.nutrition import (
     nutrition_plan,
     Goal,
@@ -24,19 +21,7 @@ def main():
 @main_bp.route('/potato', methods=['GET'])
 def potato():
     return 'hello potato'
-@main_bp.route('/start_chat_session', methods=['GET'])
-def start_chat_session():
- 
-    chat_session = Chat()
-    try:
-        
-        db.session.add(chat_session)
-        db.session.commit()
 
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": "Failed to submit profile data"}), 500
-    
 
 @main_bp.route('/submit-profile-data', methods=['POST'])
 @login_required
@@ -420,17 +405,7 @@ def chat():
     user_nutrition = UserNutrition.query.filter_by(user_id=user_id).first()
     user_meal_plan_preference = UserMealPlanPreference.query.filter_by(user_id=user_id).first()
     user_goal = UserGoal.query.filter_by(user_id=user_id).first()
-    chat_history_from_db = ChatLine.query.filter_by(user_id=user_id).all()
-    chat_history_to_return = ""
-    for message in chat_history_from_db:
-       
-        chat_history_to_return += f"Agent:{message.agent_text} \n User: {message.user_text}"
-    """
-            weight_goal = db.Column(db.String(64))
-            cardio_goal = db.Column(db.String(64))
-            resistance_goal = db.Column(db.String(64))
-    
-    """
+ 
   
     response_data = {
         "User Name": current_user.name,
@@ -462,18 +437,8 @@ def chat():
 
     # )
    
-    ai_response = chat_with_coach(user_info=response_data, user_message=user_response, chat_history=chat_history_to_return)
-    chat_line = ChatLine(
-    user_id = user_id,
-    agent = ai_response,
-    user = user_response
-    )
-    try:
-        db.session.add(chat_line)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": "Failed to submit profile data"}), 500
+    ai_response = chat_with_coach(user_info=response_data, user_message=user_response)
+
    
    
     response = {

@@ -499,7 +499,7 @@ def generate_meal_plan_expensive(data=None):
 
 
 
-def chat_with_coach(user_info, user_message, chat_history):
+def chat_with_coach(user_info, user_message):
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
     # Create the model
@@ -570,10 +570,10 @@ def chat_with_coach(user_info, user_message, chat_history):
     ]
     )
 
-    response = chat_session.send_message(f"Chat History: {chat_history}, User Message: {user_message}")
+    response = chat_session.send_message(user_message)
 
 
 
 
     print(response.text)
-    return response.text, chat_session.history
+    return response.text
