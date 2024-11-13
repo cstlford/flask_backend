@@ -116,7 +116,7 @@ def generate_meal_plan_cheap_llm(data=None):
     ##!! FIXME: INCLUDE INGREDIENT LIST FOR GROCERY SHOPPERS !!##
     ## Prompt 1 -> Generate meal plan
     completion = client.chat.completions.create(
-        model="GPT-3.5 Turbo",
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": "You are an expert nutritionist who builds nutrition plans tailored to your clients specific needs"},
             {
