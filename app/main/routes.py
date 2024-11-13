@@ -399,8 +399,7 @@ def generate_meal_plan1():
     ]
     # Return the generated meal plan
     return jsonify({'ai':meal_plan,'meals':meals}), 200
-chat_history_dict = {}
-chat_history_list = []
+
 @main_bp.route('/chat', methods=['POST'])
 @login_required
 def chat():
@@ -418,8 +417,10 @@ def chat():
     user_meal_plan_preference = UserMealPlanPreference.query.filter_by(user_id=user_id).first()
     user_goal = UserGoal.query.filter_by(user_id=user_id).first()
     chat_history_from_db = ChatLine.query.filter_by(user_id=user_id).all()
+    chat_history_to_return = ""
     for message in chat_history_from_db:
         print(message.chat_text)
+        chat_history_to_return += f"{message.chat_text.strip()}\n"
     """
             weight_goal = db.Column(db.String(64))
             cardio_goal = db.Column(db.String(64))
@@ -457,7 +458,7 @@ def chat():
 
     # )
    
-    ai_response, chat_history = chat_with_coach(user_info=response_data, user_message=user_response, chat_history=chat_history_from_db)
+    ai_response = chat_with_coach(user_info=response_data, user_message=user_response, chat_history=chat_history_to_return)
     chat_line = ChatLine(
     user_id = user_id,
     chat_text = f"Agent: {ai_response}, User: {user_response}"
@@ -468,10 +469,7 @@ def chat():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to submit profile data"}), 500
-    chat_history_list.append(chat_history)
-    if(len(chat_history_list) > 5):
-            chat_history.pop(0)
-    chat_history_dict[user_id] = chat_history_list
+   
    
     response = {
         'message': ai_response.content if hasattr(ai_response, 'content') else str(ai_response),
