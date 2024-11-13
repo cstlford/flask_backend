@@ -419,8 +419,8 @@ def chat():
     chat_history_from_db = ChatLine.query.filter_by(user_id=user_id).all()
     chat_history_to_return = ""
     for message in chat_history_from_db:
-        print(message.chat_text)
-        chat_history_to_return += f"{message.chat_text.strip()}\n"
+       
+        chat_history_to_return += f"Agent:{message.agent_text} \n User: {message.user_text}"
     """
             weight_goal = db.Column(db.String(64))
             cardio_goal = db.Column(db.String(64))
@@ -461,7 +461,8 @@ def chat():
     ai_response = chat_with_coach(user_info=response_data, user_message=user_response, chat_history=chat_history_to_return)
     chat_line = ChatLine(
     user_id = user_id,
-    chat_text = f"Agent: {ai_response}, User: {user_response}"
+    agent = ai_response,
+    user = user_response
     )
     try:
         db.session.add(chat_line)

@@ -86,7 +86,8 @@ class ChatLine(db.Model):
     __tablename__ = 'ChatLine'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
-    chat_text = db.Column(db.Text)
+    agent_text = db.Column(db.Text)
+    user_text = db.Column(db.Text)
     date_added = db.Column(db.DateTime, default=datetime.datetime.now)
 class UserWeightHistory(db.Model):
     __tablename__ = 'WeightHistory'
