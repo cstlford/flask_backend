@@ -399,7 +399,8 @@ def generate_meal_plan1():
     ]
     # Return the generated meal plan
     return jsonify({'ai':meal_plan,'meals':meals}), 200
-
+chat_history_dict = {}
+chat_history_list = []
 @main_bp.route('/chat', methods=['POST'])
 @login_required
 def chat():
@@ -442,7 +443,13 @@ def chat():
         "User Resistance Goal": user_goal.resistance_goal
 
     }
-    ai_response = chat_with_coach(user_info=response_data, user_message=user_response)
+    ai_response, chat_history = chat_with_coach(user_info=response_data, user_message=user_response, chat_history=chat_history_list)
+ 
+    chat_history_list.append(chat_history)
+    if(len(chat_history_list) > 5):
+            chat_history.pop(0)
+    chat_history_dict[user_id] = chat_history_list
+   
     response = {
         'message': ai_response.content if hasattr(ai_response, 'content') else str(ai_response),
         'role': 'assistant'
