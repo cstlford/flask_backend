@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from app.main import main_bp
 from app import db
-from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan
+from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan, ChatLine
 from app.models import Chat, UserWeightHistory
 from flask_login import login_required, current_user
 from datetime import datetime
@@ -426,7 +426,7 @@ def chat():
   
     response_data = {
         "User Name": current_user.name,
-        "User Birthday": user_info.birthday,
+        "User Birthday": user_info.birthday.strftime('%Y-%m-%d') if user_info and user_info.birthday else "No Birthday Set",
         "User Weight": user_info.weight,
         "User Height": user_info.height,
         "User Sex": user_info.sex,
@@ -443,8 +443,28 @@ def chat():
         "User Resistance Goal": user_goal.resistance_goal
 
     }
+    #  user_meal_plan_preference = UserMealPlanPreference(
+
+    #         user_id=user_id,
+    #         food_preferences=food_preferences,
+    #         food_avoidances=food_avoidances,
+    #         meals_per_day=meals_per_day,
+    #         plan_length= plan_length,
+           
+
+    # )
+   
     ai_response, chat_history = chat_with_coach(user_info=response_data, user_message=user_response, chat_history=chat_history_list)
- 
+    chat_line = ChatLine(
+    user_id = user_id,
+    chat_text = f"Agent: {ai_response}, User: {user_response}"
+    )
+    try:
+        db.session.add(chat_line)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to submit profile data"}), 500
     chat_history_list.append(chat_history)
     if(len(chat_history_list) > 5):
             chat_history.pop(0)
