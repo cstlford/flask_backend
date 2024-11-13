@@ -2,7 +2,7 @@ from flask import request, jsonify
 from app.main import main_bp
 from app import db
 from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan, ChatLine
-from app.models import Chat, UserWeightHistory
+from app.models import UserWeightHistory
 from flask_login import login_required, current_user
 from datetime import datetime
 from app.utils.nutrition import (
