@@ -1,7 +1,11 @@
 from flask import request, jsonify
 from app.main import main_bp
 from app import db
+<<<<<<< HEAD
 from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan
+=======
+from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan, ChatLine
+>>>>>>> 141efa9a1843b54a948835d490a2b6aae9438ada
 from app.models import UserWeightHistory
 from flask_login import login_required, current_user
 from datetime import datetime
@@ -399,8 +403,7 @@ def generate_meal_plan1():
     ]
     # Return the generated meal plan
     return jsonify({'ai':meal_plan,'meals':meals}), 200
-chat_history_dict = {}
-chat_history_list = []
+
 @main_bp.route('/chat', methods=['POST'])
 @login_required
 def chat():
@@ -417,6 +420,11 @@ def chat():
     user_nutrition = UserNutrition.query.filter_by(user_id=user_id).first()
     user_meal_plan_preference = UserMealPlanPreference.query.filter_by(user_id=user_id).first()
     user_goal = UserGoal.query.filter_by(user_id=user_id).first()
+    chat_history_from_db = ChatLine.query.filter_by(user_id=user_id).all()
+    chat_history_to_return = ""
+    for message in chat_history_from_db:
+       
+        chat_history_to_return += f"Agent:{message.agent_text} \n User: {message.user_text}"
     """
             weight_goal = db.Column(db.String(64))
             cardio_goal = db.Column(db.String(64))
@@ -426,14 +434,14 @@ def chat():
   
     response_data = {
         "User Name": current_user.name,
-        "User Birthday": user_info.birthday,
+        "User Birthday": user_info.birthday.strftime('%Y-%m-%d') if user_info and user_info.birthday else "No Birthday Set",
         "User Weight": user_info.weight,
         "User Height": user_info.height,
         "User Sex": user_info.sex,
         "User Diet Type": user_info.diet,
         "User Activity Level": user_info.activity_level,
-        "User Food Preferences": user_meal_plan_preference.food_preferences,
-        "User Food Restrictions": user_meal_plan_preference.food_avoidances,
+        "User Food Preferences": user_meal_plan_preference.food_preferences if user_meal_plan_preference else "No food Preferences Set",
+        "User Food Restrictions": user_meal_plan_preference.food_avoidances if user_meal_plan_preference else "No food restrictions set",
         "User Calories Intake": user_nutrition.calories,
         "User Protein Per Day": user_nutrition.protein,
         "User Fat Per Day": user_nutrition.fat,
@@ -443,12 +451,30 @@ def chat():
         "User Resistance Goal": user_goal.resistance_goal
 
     }
-    ai_response, chat_history = chat_with_coach(user_info=response_data, user_message=user_response, chat_history=chat_history_list)
- 
-    chat_history_list.append(chat_history)
-    if(len(chat_history_list) > 5):
-            chat_history.pop(0)
-    chat_history_dict[user_id] = chat_history_list
+    #  user_meal_plan_preference = UserMealPlanPreference(
+
+    #         user_id=user_id,
+    #         food_preferences=food_preferences,
+    #         food_avoidances=food_avoidances,
+    #         meals_per_day=meals_per_day,
+    #         plan_length= plan_length,
+           
+
+    # )
+   
+    ai_response = chat_with_coach(user_info=response_data, user_message=user_response, chat_history=chat_history_to_return)
+    chat_line = ChatLine(
+    user_id = user_id,
+    agent = ai_response,
+    user = user_response
+    )
+    try:
+        db.session.add(chat_line)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to submit profile data"}), 500
+   
    
     response = {
         'message': ai_response.content if hasattr(ai_response, 'content') else str(ai_response),
