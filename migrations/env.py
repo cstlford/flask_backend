@@ -4,6 +4,12 @@ from logging.config import fileConfig
 from flask import current_app
 
 from alembic import context
+# Import the db object from your app
+from app import db
+
+# Set the target metadata to the metadata of your models
+target_metadata = db.metadata
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
