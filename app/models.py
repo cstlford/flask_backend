@@ -80,17 +80,7 @@ class UserNutrition(db.Model):
     fat = db.Column(db.Float, nullable=False)
     carbs = db.Column(db.Float, nullable=False)
 
-class Chat(db.Model):
-    __tablename__ = 'Chat'
-    chat_id = db.Column(db.Integer, primary_key=True)
 
-class ChatLine(db.Model):
-    __tablename__ = 'ChatLine'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
-    chat_id = db.Column(db.Integer, db.ForeignKey(Chat.chat_id), nullable=False)
-    chat_text = db.Column(db.Text)
-    date_added = db.Column(db.DateTime, default=datetime.datetime.now)
 class UserWeightHistory(db.Model):
     __tablename__ = 'WeightHistory'
     id = db.Column(db.Integer, primary_key=True)
