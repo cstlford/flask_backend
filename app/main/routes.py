@@ -389,6 +389,23 @@ def generate_meal_plan1():
     # Return the generated meal plan
     return jsonify({'ai':meal_plan,'meals':meals}), 200
 
+@main_bp.route('/delete-chat-history', methods=['DELETE'])
+@login_required
+def delete_chat_history():
+    try:
+        user_id = current_user.user_id  # Ensure current_user is correctly set
+        deleted_rows = Chat.query.filter_by(user_id=user_id).delete()
+
+        if deleted_rows > 0:
+            db.session.commit()
+            return '', 204  # No content returned, but successful deletion
+        else:
+            return jsonify({'error': 'No chat history found'}), 404  # Chat history not found
+
+    except Exception as e:
+        db.session.rollback()  # Rollback if there is an error
+        return jsonify({'error': str(e)}), 500  # Return the error message
+
 @main_bp.route('/chat', methods=['POST'])
 @login_required
 def chat():
