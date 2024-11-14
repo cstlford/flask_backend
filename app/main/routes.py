@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from app.main import main_bp
 from app import db
-from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan
+from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan, Chat
 from app.models import UserWeightHistory
 from flask_login import login_required, current_user
 from datetime import datetime
@@ -405,6 +405,15 @@ def chat():
     user_nutrition = UserNutrition.query.filter_by(user_id=user_id).first()
     user_meal_plan_preference = UserMealPlanPreference.query.filter_by(user_id=user_id).first()
     user_goal = UserGoal.query.filter_by(user_id=user_id).first()
+    chat_history = Chat.query.filter_by(user_id=user_id).all()
+    chat_data = ""
+    
+    for chat in chat_history:
+        chat_data += f"User: {chat.user_text}"
+        chat_data += f"Agent: {chat.agent_text}"
+
+      
+
  
   
     response_data = {
@@ -426,23 +435,29 @@ def chat():
         "User Resistance Goal": user_goal.resistance_goal
 
     }
-    #  user_meal_plan_preference = UserMealPlanPreference(
+    
 
-    #         user_id=user_id,
-    #         food_preferences=food_preferences,
-    #         food_avoidances=food_avoidances,
-    #         meals_per_day=meals_per_day,
-    #         plan_length= plan_length,
-           
 
-    # )
    
-    ai_response = chat_with_coach(user_info=response_data, user_message=user_response)
+    agent_response = chat_with_coach(user_info=response_data, user_message=user_response, chat_history=chat_data)
+    chat = Chat(
+        user_id = user_id,
+        user_text = user_response,
+        agent_text = agent_response
 
+    )
+    try:
+        db.session.add(chat)
+        db.session.commit()
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to save Chat"}), 500
+    
    
    
     response = {
-        'message': ai_response.content if hasattr(ai_response, 'content') else str(ai_response),
+        'message': agent_response.content if hasattr(agent_response, 'content') else str(agent_response),
         'role': 'assistant'
     }
     
