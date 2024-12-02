@@ -1,24 +1,13 @@
 import os
-import secrets
-from dotenv import load_dotenv
 
-# Load environment variables from .env file if running locally
-load_dotenv()
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+MYSQL_USERNAME = 'root'
+MYSQL_PASSWORD = 'W1shfulthinking'
+MYSQL_HOST = 'localhost'
+MYSQL_DB = 'shapeshift2'
 
 class Config:
-    DEBUG = True 
-    # Session cookie settings
-    SESSION_COOKIE_SAMESITE = 'None'  # Allows cookies to be sent cross-origin
-    SESSION_COOKIE_SECURE = True  # Use this if you're using HTTPS
-
-    # Use an environment variable for the secret key or generate one if not set
-    SECRET_KEY = os.environ.get('SECRET_KEY') or secrets.token_hex(16)  
-
-    # Database configuration from the Heroku environment variable
-    SQLALCHEMY_DATABASE_URI = os.environ.get('JAWSDB_URL') or os.environ.get('DATABASE_URI')  # Ensure this key matches Heroku's
-
-    # Disable SQLAlchemy event system to save resources
+    SECRET_KEY = 'xxx'  
+    SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{MYSQL_USERNAME}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DB}'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    # OpenAI API Key from environment variables
-    OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]

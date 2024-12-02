@@ -597,3 +597,18 @@ def get_meal_plans():
     except Exception as e:
         print(f"Error fetching meal plans: {e}")
         return jsonify({'error': 'Failed to fetch meal plans'}), 500
+    
+
+@main_bp.route('/generate-exercise-plan', methods=['POST'])
+@login_required
+def generate_exercise_plan():
+
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "No JSON data received"}), 400
+
+    print(data)
+
+    return jsonify("yeet"), 200
+ 

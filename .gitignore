@@ -5,3 +5,4 @@ __pycache__/
 .venv_for_flask_backend/
 .env.venv_flask_back/
 .venv_flask_back/
+config.py
