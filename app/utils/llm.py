@@ -38,10 +38,10 @@ def calculate(nutrient,output):
 
         # search for all instances of nutrient 
         if nutrient == "calories":
-            regex = "(\d{1,4})( cals)"
+            regex = r"(\\d{1,4})( cals)"
         else:
-            regex = "(\d{1,4})(g "+nutrient+")"
-        amounts = re.findall(regex, output)
+            regex = rf"(\\d{1,4})(g {nutrient})"  # Using raw f-string for dynamic nutrient
+            amounts = re.findall(regex, output)
 
         # sum nutrient
         for amount in amounts:
@@ -499,7 +499,7 @@ def generate_meal_plan_expensive(data=None):
 
 
 
-def chat_with_coach(user_info, user_message):
+def chat_with_coach(user_info, user_message, chat_history):
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
     # Create the model
@@ -514,9 +514,13 @@ def chat_with_coach(user_info, user_message):
     model = genai.GenerativeModel(
     model_name="gemini-1.5-flash-002",
     generation_config=generation_config,
-    system_instruction=f""" 
+    system_instruction=
+    f""" 
              
-                You are Hercules, an expert AI assistant and professional nutrition advisor with extensive knowledge across fitness, health, and wellness frameworks. Use user data to guide them toward their specific diet, fitness goals, and health needs. Your role is to provide clear, accurate, and actionable information that aligns with best practices in nutrition, exercise, and health management.
+                You are Hercules, an expert AI assistant and professional nutrition advisor with extensive knowledge across fitness, 
+                health, and wellness frameworks. Use user data to guide them toward their specific diet, fitness goals, and health needs. 
+                Your role is to provide clear, accurate, and actionable information that aligns with best practices in nutrition, exercise, 
+                and health management.
 
                 <system_constraints>
 
@@ -534,7 +538,30 @@ def chat_with_coach(user_info, user_message):
                 If the user provides physical metrics (e.g., weight, height, activity level), adjust dietary and fitness recommendations accordingly.
                 Keep fitness plans adaptable and provide options for both dietary adjustments and exercise routines.
                 Adjust advice based on dietary restrictions, preferences, and lifestyle (e.g., vegan, gluten-free, sedentary). </special_handling_for_user_data>
-             
+
+                If user ask for meal plan use this template:
+                Template Mealplan:
+                        ## Day 1 <br>
+                        ### *Breakfast: <br>
+                        - 4 of food <br>
+                        - 5g of food <br>
+                        - 4 of food <br>
+                        ... etc
+                        ### *Lunch: <br>
+                        - 8 oz food <br>
+                        - 2 oz food <br>
+                        ... etc
+                        ### *Snack: <br>
+                        - 2 oz food <br>
+                        ... etc
+                        ### *Dinner: <br>
+                        - 8 oz food <br>
+                        - 2 oz food <br>
+                        - 2 oz food <br>
+                        ... etc
+                        ### *Evening Snack: <br>
+                        - 3 food <br>
+                        ... etc
                 User Info: {user_info}""",
     )
 
@@ -543,44 +570,10 @@ def chat_with_coach(user_info, user_message):
     ]
     )
 
-    response = chat_session.send_message(user_message)
+    response = chat_session.send_message(f"Chat History: {chat_history} \n User Message: {user_message}")
 
 
-    
-    
-    completion = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-               {
-                "role": "user",
-                "content": f"{user_message}"
-            },
-            {"role": "system", "content": f""" 
-             
-                You are Hercules, an expert AI assistant and professional nutrition advisor with extensive knowledge across fitness, health, and wellness frameworks. Use user data to guide them toward their specific diet, fitness goals, and health needs. Your role is to provide clear, accurate, and actionable information that aligns with best practices in nutrition, exercise, and health management.
 
-                <system_constraints>
 
-                Use user data to create personalized and precise advice.
-                Adjust responses according to the user's fitness level, health status, and dietary preferences.
-                Respect user privacy and provide only relevant health-related context to avoid over-personalization. </system_constraints>
-                <response_guidelines>
-
-                IMPORTANT: Focus on direct, specific advice. Avoid excessive explanations unless the user requests more detail.
-                IMPORTANT: When discussing sensitive topics like weight loss, aim for constructive, supportive language.
-                ULTRA IMPORTANT: Do NOT be verbose. Always prioritize clarity, and avoid providing unnecessary information unless requested.
-                ULTRA IMPORTANT: Always base advice on established nutritional guidelines and fitness science. </response_guidelines>
-                <special_handling_for_user_data>
-
-                If the user provides physical metrics (e.g., weight, height, activity level), adjust dietary and fitness recommendations accordingly.
-                Keep fitness plans adaptable and provide options for both dietary adjustments and exercise routines.
-                Adjust advice based on dietary restrictions, preferences, and lifestyle (e.g., vegan, gluten-free, sedentary). </special_handling_for_user_data>
-             
-                User Info: {user_info}"""
-             },
-         
-        ]
-        
-    )
     print(response.text)
     return response.text

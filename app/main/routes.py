@@ -1,10 +1,11 @@
 from flask import request, jsonify
 from app.main import main_bp
 from app import db
-from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan
-from app.models import Chat
+from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan, Chat
+from app.models import UserWeightHistory
 from flask_login import login_required, current_user
 from datetime import datetime
+
 from app.utils.nutrition import (
     nutrition_plan,
     Goal,
@@ -20,19 +21,7 @@ def main():
 @main_bp.route('/potato', methods=['GET'])
 def potato():
     return 'hello potato'
-@main_bp.route('/start_chat_session', methods=['GET'])
-def start_chat_session():
- 
-    chat_session = Chat()
-    try:
-        
-        db.session.add(chat_session)
-        db.session.commit()
 
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": "Failed to submit profile data"}), 500
-    
 
 @main_bp.route('/submit-profile-data', methods=['POST'])
 @login_required
@@ -174,6 +163,41 @@ def get_user_profile():
     return jsonify(response_data), 200
 
     
+@main_bp.route('/submit-weight-history', methods=['POST'])
+@login_required
+def submit_weight_history():
+    user_id = current_user.user_id
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No JSON data received"}), 400
+    weight = data.get('weight')
+    date = data.get('date')
+    weight_history = UserWeightHistory(
+        user_id = user_id,
+        weight = weight,
+        date_selected = date
+    )
+    try:
+        db.session.add(weight_history)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to submit profile data"}), 500
+
+@main_bp.route('/get-weight-history', methods=['GET'])
+@login_required
+def get_weight_history():
+    user_id = current_user.user_id
+    weight_history = UserWeightHistory.query.filter_by(user_id=user_id).all()
+    
+    if not weight_history:
+        return jsonify({"message": "No weight history found"}), 404
+
+    # Extracting the weight and date from the result
+    weight_data = [{"weight": entry.weight, "date": entry.date_selected} for entry in weight_history]
+
+    return jsonify({"weight_history": weight_data}), 200
+
 
 
 @main_bp.route('/generate-meal-plan', methods=['POST'])
@@ -439,6 +463,23 @@ def generate_meal_plan1():
         ]
     return jsonify({'ai':meal_plan,'meals':meals}), 200
 
+@main_bp.route('/delete-chat-history', methods=['DELETE'])
+@login_required
+def delete_chat_history():
+    try:
+        user_id = current_user.user_id  # Ensure current_user is correctly set
+        deleted_rows = Chat.query.filter_by(user_id=user_id).delete()
+
+        if deleted_rows > 0:
+            db.session.commit()
+            return '', 204  # No content returned, but successful deletion
+        else:
+            return jsonify({'error': 'No chat history found'}), 404  # Chat history not found
+
+    except Exception as e:
+        db.session.rollback()  # Rollback if there is an error
+        return jsonify({'error': str(e)}), 500  # Return the error message
+
 @main_bp.route('/chat', methods=['POST'])
 @login_required
 def chat():
@@ -455,23 +496,27 @@ def chat():
     user_nutrition = UserNutrition.query.filter_by(user_id=user_id).first()
     user_meal_plan_preference = UserMealPlanPreference.query.filter_by(user_id=user_id).first()
     user_goal = UserGoal.query.filter_by(user_id=user_id).first()
-    """
-            weight_goal = db.Column(db.String(64))
-            cardio_goal = db.Column(db.String(64))
-            resistance_goal = db.Column(db.String(64))
+    chat_history = Chat.query.filter_by(user_id=user_id).all()
+    chat_data = ""
     
-    """
+    for chat in chat_history:
+        chat_data += f"User: {chat.user_text}"
+        chat_data += f"Agent: {chat.agent_text}"
+
+      
+
+ 
   
     response_data = {
         "User Name": current_user.name,
-        "User Birthday": user_info.birthday,
+        "User Birthday": user_info.birthday.strftime('%Y-%m-%d') if user_info and user_info.birthday else "No Birthday Set",
         "User Weight": user_info.weight,
         "User Height": user_info.height,
         "User Sex": user_info.sex,
         "User Diet Type": user_info.diet,
         "User Activity Level": user_info.activity_level,
-        "User Food Preferences": user_meal_plan_preference.food_preferences,
-        "User Food Restrictions": user_meal_plan_preference.food_avoidances,
+        "User Food Preferences": user_meal_plan_preference.food_preferences if user_meal_plan_preference else "No food Preferences Set",
+        "User Food Restrictions": user_meal_plan_preference.food_avoidances if user_meal_plan_preference else "No food restrictions set",
         "User Calories Intake": user_nutrition.calories,
         "User Protein Per Day": user_nutrition.protein,
         "User Fat Per Day": user_nutrition.fat,
@@ -481,9 +526,29 @@ def chat():
         "User Resistance Goal": user_goal.resistance_goal
 
     }
-    ai_response = chat_with_coach(user_info=response_data, user_message=user_response)
+    
+
+
+   
+    agent_response = chat_with_coach(user_info=response_data, user_message=user_response, chat_history=chat_data)
+    chat = Chat(
+        user_id = user_id,
+        user_text = user_response,
+        agent_text = agent_response
+
+    )
+    try:
+        db.session.add(chat)
+        db.session.commit()
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to save Chat"}), 500
+    
+   
+   
     response = {
-        'message': ai_response.content if hasattr(ai_response, 'content') else str(ai_response),
+        'message': agent_response.content if hasattr(agent_response, 'content') else str(agent_response),
         'role': 'assistant'
     }
     

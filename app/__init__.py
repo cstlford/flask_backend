@@ -15,14 +15,17 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # Initialize extensions
+    app.config['DEBUG'] = True  # Enable debug mode here
+   
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     bcrypt.init_app(app)
 
     # Configure CORS
-    CORS(app, supports_credentials=True, origins='*')
+    CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5173"])
+
+
     # Register blueprints
     from app.auth.routes import auth_bp
     from app.main.routes import main_bp
