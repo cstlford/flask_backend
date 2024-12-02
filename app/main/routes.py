@@ -267,102 +267,176 @@ def generate_meal_plan1():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
         
-    meals = [
-        [
-            {
-                "title": "Eggs & Toast",
-                "calories": 350,
-                "macros": {"protein": 20, "carbs": 40, "fat": 10},
-                "ingredients": ["2 Eggs", "1Tb Butter", "1pc Toast"],
-                "directions": "",
-            },
-            {
-                "title": "Carrot Soup",
-                "calories": 500,
-                "macros": {"protein": 30, "carbs": 50, "fat": 20},
-                "ingredients": [],
-                "directions": "",
-            },
-            {
-                "title": "Meatloaf",
-                "calories": 600,
-                "macros": {"protein": 35, "carbs": 60, "fat": 25},
-                "ingredients": [],
-                "directions": "",
-            },
-        ],
-                [
-            {
-                "title": "Eggs & Toast",
-                "calories": 350,
-                "macros": {"protein": 20, "carbs": 40, "fat": 10},
-                "ingredients": ["2 Eggs", "1Tb Butter", "1pc Toast"],
-                "directions": "",
-            },
-            {
-                "title": "Carrot Soup",
-                "calories": 500,
-                "macros": {"protein": 30, "carbs": 50, "fat": 20},
-                "ingredients": [],
-                "directions": "",
-            },
-            {
-                "title": "Meatloaf",
-                "calories": 600,
-                "macros": {"protein": 35, "carbs": 60, "fat": 25},
-                "ingredients": [],
-                "directions": "",
-            },
-        ],
-                [
-            {
-                "title": "Eggs & Toast",
-                "calories": 350,
-                "macros": {"protein": 20, "carbs": 40, "fat": 10},
-                "ingredients": ["2 Eggs", "1Tb Butter", "1pc Toast"],
-                "directions": "",
-            },
-            {
-                "title": "Carrot Soup",
-                "calories": 500,
-                "macros": {"protein": 30, "carbs": 50, "fat": 20},
-                "ingredients": [],
-                "directions": "",
-            },
-            {
-                "title": "Meatloaf",
-                "calories": 600,
-                "macros": {"protein": 35, "carbs": 60, "fat": 25},
-                "ingredients": [],
-                "directions": "",
-            },
-        ],
-                [
-            {
-                "title": "Eggs & Toast",
-                "calories": 350,
-                "macros": {"protein": 20, "carbs": 40, "fat": 10},
-                "ingredients": ["2 Eggs", "1Tb Butter", "1pc Toast"],
-                "directions": "",
-            },
-            {
-                "title": "Carrot Soup",
-                "calories": 500,
-                "macros": {"protein": 30, "carbs": 50, "fat": 20},
-                "ingredients": [],
-                "directions": "",
-            },
-            {
-                "title": "Meatloaf",
-                "calories": 600,
-                "macros": {"protein": 35, "carbs": 60, "fat": 25},
-                "ingredients": [],
-                "directions": "",
-            },
-        ],
-        # Add additional meal data as needed
-    ]
-    # Return the generated meal plan
+        meals = [
+            # Day 1
+            [
+                {
+                    "title": "Oatmeal with Berries",
+                    "calories": 350,
+                    "macros": {"protein": 15, "carbs": 60, "fat": 8},
+                    "ingredients": ["1/2 cup Oats", "1 cup Almond Milk", "1/4 cup Berries", "1 Tbsp Honey"],
+                    "directions": "Cook oats in almond milk, top with berries and honey."
+                },
+                {
+                    "title": "Grilled Chicken Salad",
+                    "calories": 450,
+                    "macros": {"protein": 35, "carbs": 40, "fat": 15},
+                    "ingredients": ["100g Grilled Chicken", "Mixed Greens", "1/2 Avocado", "Cherry Tomatoes", "Balsamic Dressing"],
+                    "directions": "Combine ingredients, top with balsamic dressing."
+                },
+                {
+                    "title": "Salmon and Quinoa",
+                    "calories": 600,
+                    "macros": {"protein": 40, "carbs": 55, "fat": 20},
+                    "ingredients": ["150g Salmon", "1/2 cup Quinoa", "Steamed Broccoli", "1 Tbsp Olive Oil"],
+                    "directions": "Grill salmon, serve with cooked quinoa and steamed broccoli."
+                },
+            ],
+            # Day 2
+            [
+                {
+                    "title": "Greek Yogurt with Granola",
+                    "calories": 300,
+                    "macros": {"protein": 20, "carbs": 45, "fat": 8},
+                    "ingredients": ["1 cup Greek Yogurt", "1/4 cup Granola", "Honey drizzle"],
+                    "directions": "Top yogurt with granola and honey."
+                },
+                {
+                    "title": "Turkey Wrap",
+                    "calories": 400,
+                    "macros": {"protein": 30, "carbs": 40, "fat": 12},
+                    "ingredients": ["Whole Wheat Wrap", "100g Turkey Breast", "Lettuce", "Tomato", "1 Tbsp Hummus"],
+                    "directions": "Assemble wrap with ingredients."
+                },
+                {
+                    "title": "Beef Stir-Fry",
+                    "calories": 550,
+                    "macros": {"protein": 40, "carbs": 50, "fat": 18},
+                    "ingredients": ["100g Beef Strips", "Mixed Vegetables", "1 cup Brown Rice", "Soy Sauce"],
+                    "directions": "Stir-fry beef and vegetables, serve with rice."
+                },
+            ],
+            # Day 3
+            [
+                {
+                    "title": "Avocado Toast with Egg",
+                    "calories": 300,
+                    "macros": {"protein": 15, "carbs": 35, "fat": 14},
+                    "ingredients": ["1 Slice Whole Grain Bread", "1/2 Avocado", "1 Egg"],
+                    "directions": "Toast bread, top with mashed avocado and fried egg."
+                },
+                {
+                    "title": "Quinoa Salad",
+                    "calories": 400,
+                    "macros": {"protein": 20, "carbs": 60, "fat": 12},
+                    "ingredients": ["1/2 cup Quinoa", "Mixed Vegetables", "1 Tbsp Olive Oil", "Lemon Juice"],
+                    "directions": "Mix ingredients and season with lemon juice."
+                },
+                {
+                    "title": "Shrimp and Veggies",
+                    "calories": 500,
+                    "macros": {"protein": 35, "carbs": 40, "fat": 15},
+                    "ingredients": ["150g Shrimp", "Steamed Vegetables", "1 cup Couscous"],
+                    "directions": "Sauté shrimp, serve with couscous and vegetables."
+                },
+            ],
+            # Day 4
+            [
+                {
+                    "title": "Smoothie Bowl",
+                    "calories": 350,
+                    "macros": {"protein": 20, "carbs": 55, "fat": 10},
+                    "ingredients": ["1 Banana", "1/2 cup Berries", "1 scoop Protein Powder", "1 Tbsp Almond Butter"],
+                    "directions": "Blend ingredients, top with granola."
+                },
+                {
+                    "title": "Tuna Salad",
+                    "calories": 450,
+                    "macros": {"protein": 35, "carbs": 30, "fat": 18},
+                    "ingredients": ["100g Tuna", "Mixed Greens", "Olives", "1 Tbsp Olive Oil"],
+                    "directions": "Mix ingredients with olive oil."
+                },
+                {
+                    "title": "Chicken Stir-Fry",
+                    "calories": 600,
+                    "macros": {"protein": 45, "carbs": 55, "fat": 15},
+                    "ingredients": ["100g Chicken Breast", "Mixed Vegetables", "1 cup Rice"],
+                    "directions": "Cook chicken and vegetables, serve with rice."
+                },
+            ],
+            # Day 5
+            [
+                {
+                    "title": "Egg and Veggie Scramble",
+                    "calories": 320,
+                    "macros": {"protein": 20, "carbs": 20, "fat": 18},
+                    "ingredients": ["2 Eggs", "Bell Peppers", "Onion", "1 Tbsp Olive Oil"],
+                    "directions": "Scramble eggs with vegetables."
+                },
+                {
+                    "title": "Chicken Wrap",
+                    "calories": 420,
+                    "macros": {"protein": 30, "carbs": 40, "fat": 15},
+                    "ingredients": ["Whole Wheat Wrap", "100g Chicken Breast", "Lettuce", "Hummus"],
+                    "directions": "Wrap ingredients together."
+                },
+                {
+                    "title": "Beef and Sweet Potato",
+                    "calories": 550,
+                    "macros": {"protein": 35, "carbs": 50, "fat": 15},
+                    "ingredients": ["100g Beef", "1 Sweet Potato", "Green Beans"],
+                    "directions": "Cook beef and serve with roasted sweet potato and green beans."
+                },
+            ],
+            # Day 6
+            [
+                {
+                    "title": "Chia Pudding",
+                    "calories": 300,
+                    "macros": {"protein": 10, "carbs": 45, "fat": 12},
+                    "ingredients": ["3 Tbsp Chia Seeds", "1 cup Almond Milk", "1 Tbsp Honey"],
+                    "directions": "Mix chia seeds with almond milk and let sit overnight."
+                },
+                {
+                    "title": "Turkey and Avocado Salad",
+                    "calories": 420,
+                    "macros": {"protein": 35, "carbs": 30, "fat": 18},
+                    "ingredients": ["100g Turkey", "Mixed Greens", "1/2 Avocado"],
+                    "directions": "Combine ingredients."
+                },
+                {
+                    "title": "Baked Salmon and Asparagus",
+                    "calories": 550,
+                    "macros": {"protein": 40, "carbs": 40, "fat": 20},
+                    "ingredients": ["150g Salmon", "Asparagus", "1/2 cup Brown Rice"],
+                    "directions": "Bake salmon and serve with rice and asparagus."
+                },
+            ],
+            # Day 7
+            [
+                {
+                    "title": "Veggie Omelette",
+                    "calories": 350,
+                    "macros": {"protein": 20, "carbs": 30, "fat": 15},
+                    "ingredients": ["3 Eggs", "Bell Peppers", "Spinach", "1 Tbsp Olive Oil"],
+                    "directions": "Cook vegetables, then add eggs to make an omelette."
+                },
+                {
+                    "title": "Lentil Soup",
+                    "calories": 400,
+                    "macros": {"protein": 25, "carbs": 50, "fat": 10},
+                    "ingredients": ["1 cup Lentils", "Carrots", "Celery", "Garlic"],
+                    "directions": "Simmer lentils with vegetables until tender."
+                },
+                {
+                    "title": "Chicken and Quinoa Bowl",
+                    "calories": 600,
+                    "macros": {"protein": 45, "carbs": 55, "fat": 15},
+                    "ingredients": ["100g Grilled Chicken", "1/2 cup Quinoa", "Steamed Broccoli"],
+                    "directions": "Combine grilled chicken with quinoa and broccoli."
+                },
+            ],
+        ]
     return jsonify({'ai':meal_plan,'meals':meals}), 200
 
 @main_bp.route('/chat', methods=['POST'])
