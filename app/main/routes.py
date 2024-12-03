@@ -6,6 +6,7 @@ from app.models import UserWeightHistory
 from flask_login import login_required, current_user
 from datetime import datetime
 
+from app.utils.exercise_functions import WorkoutPlanner
 from app.utils.nutrition import (
     nutrition_plan,
     Goal,
@@ -13,7 +14,7 @@ from app.utils.nutrition import (
     ActivityLevel
 )
 
-from app.utils.llm import generate_meal_plan_cheap_llm, generate_meal_plan_expensive, chat_with_coach
+from app.utils.nutrition_prompt import generate_meal_plan_cheap_llm, generate_meal_plan_expensive, chat_with_coach
 
 @main_bp.route('/', methods=['Get'])
 def main():
@@ -604,11 +605,41 @@ def get_meal_plans():
 def generate_exercise_plan():
 
     data = request.get_json()
-
     if not data:
         return jsonify({"error": "No JSON data received"}), 400
-
     print(data)
 
-    return jsonify("yeet"), 200
+
+    daysPerWeek = data.get('daysPerWeek')
+    if daysPerWeek >= 5:
+        split = "Push/Pull/Legs"
+    elif daysPerWeek == 4:
+        split = "Upper/Lower"
+    else:
+        split = "Full Body"
+
+    timePerWorkout = data.get('timePerWorkout')
+    equipment = data.get('equipment')
+    if equipment == 1:
+        equipment = "Full gym"
+    elif equipment == 2:
+        equipment = "No equipment. Just bodyweight"
+    else:
+        equipment = data.get('customEquipment')
+
+    user_id = current_user.user_id
+    user_goal = UserGoal.query.filter_by(user_id=user_id).first()
+    resistance_goal = user_goal.resistance_goal
+    cardio_goal = user_goal.cardio_goal
+
+    planner = WorkoutPlanner()
+    workout = planner.plan_workout(total_time_minutes=timePerWorkout, goal=resistance_goal)
+    print(workout)
+
+
+
+
+    
+
+    return jsonify(f"days per week: {daysPerWeek}\ntime per workout: {timePerWorkout}\nEquipment: {equipment}"), 200
  
