@@ -638,8 +638,46 @@ def generate_exercise_plan():
 
 
 
-
+    pushWorkoutData = [{
+    "title": "Push Workout",
+    "warmup": ["5 minutes treadmill", "Dynamic stretches"],
+    "compoundLifts": [
+      { "name": "Bench Press", "sets": 3, "reps": 8, "rest": 60 },
+      { "name": "Overhead Press", "sets": 2, "reps": 8, "rest": 60 },
+    ],
+    "isolationLifts": [
+      { "name": "Tricep Extension", "sets": 3, "reps": 8, "rest": 30 },
+      { "name": "Lateral Raises", "sets": 2, "reps": 8, "rest": 30 },
+    ],
+    "cooldown": ["Stretch chest", "Stretch shoulders"],
+    },
+    {
+    "title": "Push Workout",
+    "warmup": ["5 minutes treadmill", "Dynamic stretches"],
+    "compoundLifts": [
+      { "name": "Bench Press", "sets": 3, "reps": 8, "rest": 60 },
+      { "name": "Overhead Press", "sets": 2, "reps": 8, "rest": 60 },
+    ],
+    "isolationLifts": [
+      { "name": "Tricep Extension", "sets": 3, "reps": 8, "rest": 30 },
+      { "name": "Lateral Raises", "sets": 2, "reps": 8, "rest": 30 },
+    ],
+    "cooldown": ["Stretch chest", "Stretch shoulders"],
+    },
+    {
+    "title": "Push Workout",
+    "warmup": ["5 minutes treadmill", "Dynamic stretches"],
+    "compoundLifts": [
+      { "name": "Bench Press", "sets": 3, "reps": 8, "rest": 60 },
+      { "name": "Overhead Press", "sets": 2, "reps": 8, "rest": 60 },
+    ],
+    "isolationLifts": [
+      { "name": "Tricep Extension", "sets": 3, "reps": 8, "rest": 30 },
+      { "name": "Lateral Raises", "sets": 2, "reps": 8, "rest": 30 },
+    ],
+    "cooldown": ["Stretch chest", "Stretch shoulders"],
+    }]
     
 
-    return jsonify(f"days per week: {daysPerWeek}\ntime per workout: {timePerWorkout}\nEquipment: {equipment}"), 200
+    return jsonify(pushWorkoutData), 200
  
