@@ -7,6 +7,7 @@ from flask_login import login_required, current_user
 from datetime import datetime
 
 from app.utils.exercise_functions import WorkoutPlanner
+from app.utils.exercise_prompt import get_workout_plan_from_gpt
 from app.utils.nutrition import (
     nutrition_plan,
     Goal,
@@ -613,10 +614,13 @@ def generate_exercise_plan():
     daysPerWeek = data.get('daysPerWeek')
     if daysPerWeek >= 5:
         split = "Push/Pull/Legs"
+        num_plans = 3
     elif daysPerWeek == 4:
-        split = "Upper/Lower"
+        split = "Upper/Lower/Upper/Lower"
+        num_plans = 4
     else:
         split = "Full Body"
+        num_plans = daysPerWeek
 
     timePerWorkout = data.get('timePerWorkout')
     equipment = data.get('equipment')
@@ -625,7 +629,7 @@ def generate_exercise_plan():
     elif equipment == 2:
         equipment = "No equipment. Just bodyweight"
     else:
-        equipment = data.get('customEquipment')
+        equipment = f"{data.get('customEquipment')}, and bodyweight"
 
     user_id = current_user.user_id
     user_goal = UserGoal.query.filter_by(user_id=user_id).first()
@@ -633,51 +637,13 @@ def generate_exercise_plan():
     cardio_goal = user_goal.cardio_goal
 
     planner = WorkoutPlanner()
-    workout = planner.plan_workout(total_time_minutes=timePerWorkout, goal=resistance_goal)
-    print(workout)
-
-
-
-    pushWorkoutData = [{
-    "title": "Push Workout",
-    "warmup": ["5 minutes treadmill", "Dynamic stretches"],
-    "compoundLifts": [
-      { "name": "Bench Press", "sets": 3, "reps": 8, "rest": 60 },
-      { "name": "Overhead Press", "sets": 2, "reps": 8, "rest": 60 },
-    ],
-    "isolationLifts": [
-      { "name": "Tricep Extension", "sets": 3, "reps": 8, "rest": 30 },
-      { "name": "Lateral Raises", "sets": 2, "reps": 8, "rest": 30 },
-    ],
-    "cooldown": ["Stretch chest", "Stretch shoulders"],
-    },
-    {
-    "title": "Push Workout",
-    "warmup": ["5 minutes treadmill", "Dynamic stretches"],
-    "compoundLifts": [
-      { "name": "Bench Press", "sets": 3, "reps": 8, "rest": 60 },
-      { "name": "Overhead Press", "sets": 2, "reps": 8, "rest": 60 },
-    ],
-    "isolationLifts": [
-      { "name": "Tricep Extension", "sets": 3, "reps": 8, "rest": 30 },
-      { "name": "Lateral Raises", "sets": 2, "reps": 8, "rest": 30 },
-    ],
-    "cooldown": ["Stretch chest", "Stretch shoulders"],
-    },
-    {
-    "title": "Push Workout",
-    "warmup": ["5 minutes treadmill", "Dynamic stretches"],
-    "compoundLifts": [
-      { "name": "Bench Press", "sets": 3, "reps": 8, "rest": 60 },
-      { "name": "Overhead Press", "sets": 2, "reps": 8, "rest": 60 },
-    ],
-    "isolationLifts": [
-      { "name": "Tricep Extension", "sets": 3, "reps": 8, "rest": 30 },
-      { "name": "Lateral Raises", "sets": 2, "reps": 8, "rest": 30 },
-    ],
-    "cooldown": ["Stretch chest", "Stretch shoulders"],
-    }]
+    structure = planner.plan_workout(total_time_minutes=timePerWorkout, goal=resistance_goal)
+    print("plan:",structure["workout_plan"])
     
 
-    return jsonify(pushWorkoutData), 200
+    workout_plans = get_workout_plan_from_gpt(num_plans, split, structure, equipment)
+    
+    return jsonify(workout_plans), 200
+
+
  

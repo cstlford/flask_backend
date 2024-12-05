@@ -29,9 +29,9 @@ class WorkoutPlanner:
 
     def calculate_sets_reps(self, time_allocation, goal):
         goals = {
-            "strength": {"rep_range": (3, 6), "rest_time": 180},
-            "hypertrophy": {"rep_range": (8, 12), "rest_time": 90},
-            "endurance": {"rep_range": (12, 20), "rest_time": 60}
+            "strength": {"rep_range": (3, 6), "rest_time": 90},
+            "hypertrophy": {"rep_range": (8, 12), "rest_time": 60},
+            "endurance": {"rep_range": (12, 20), "rest_time": 30}
         }
 
         goal_params = goals.get(goal.lower(), goals["hypertrophy"])
@@ -94,13 +94,4 @@ class WorkoutPlanner:
             "total_time_used": self.WARM_UP_TIME + compound_time_used + isolation_time_used + self.COOL_DOWN_TIME
         }
 
-# Example usage
 
-planner = WorkoutPlanner()
-workout = planner.plan_workout(total_time_minutes=60, goal="endurance")
-
-print("Time Allocation:", workout["time_allocation"])
-print("Workout Plan:", workout["workout_plan"])
-print(f"Compound Time Used: {workout['compound_time_used']/60} minutes")
-print(f"Isolation Time Used: {workout['isolation_time_used']/60} minutes")
-print(f"Total Time Used: {workout['total_time_used']/60} minutes")
