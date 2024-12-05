@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from app.main import main_bp
 from app import db
-from app.models import UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan, Chat
+from app.models import SavedExercisePlan, UserGoal, UserInfo, UserMealPlanPreference, UserNutrition, MealPlan, Chat
 from app.models import UserWeightHistory
 from flask_login import login_required, current_user
 from datetime import datetime
@@ -613,13 +613,16 @@ def generate_exercise_plan():
 
     daysPerWeek = data.get('daysPerWeek')
     if daysPerWeek >= 5:
-        split = "Push/Pull/Legs"
+        split_llm = "Push/Pull/Legs"
+        split = split_llm
         num_plans = 3
     elif daysPerWeek == 4:
-        split = "Upper/Lower/Upper/Lower"
+        split_llm = "Upper/Lower/Upper/Lower"
+        split = "Upper/Lower"
         num_plans = 4
     else:
-        split = "Full Body"
+        split_llm = "Full Body"
+        split = split_llm
         num_plans = daysPerWeek
 
     timePerWorkout = data.get('timePerWorkout')
@@ -638,12 +641,56 @@ def generate_exercise_plan():
 
     planner = WorkoutPlanner()
     structure = planner.plan_workout(total_time_minutes=timePerWorkout, goal=resistance_goal)
-    print("plan:",structure["workout_plan"])
+
+    workout_plans = get_workout_plan_from_gpt(num_plans, split_llm, structure, equipment)
+    
+    return jsonify({"workout_plan":workout_plans, "split": split}), 200
+
+
+@main_bp.route('/save-exercise-plan', methods=['POST'])
+@login_required
+def save_exercise_plan():
+    try:
+
+        data = request.get_json()
+
+        workout = data.get('workout')
+        split = data.get('split')
+        if not workout or not split:
+            return jsonify({"error": "Invalid input. 'workout' and 'split' are required."}), 400
+
+        new_plan = SavedExercisePlan(
+            user_id=current_user.user_id, 
+            workout=workout,
+            split=split
+        )
+
+        db.session.add(new_plan)
+        db.session.commit()
+
+        return jsonify({"success": True, "message": "Exercise plan saved successfully!"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "An error occurred while saving the exercise plan.", "details": str(e)}), 500
     
 
-    workout_plans = get_workout_plan_from_gpt(num_plans, split, structure, equipment)
-    
-    return jsonify(workout_plans), 200
-
-
- 
+@main_bp.route('/get-exercise-plans', methods=['GET'])
+@login_required
+def get_exercise_plans():
+    try:
+        # Query all exercise plans for the current user
+        exercise_plans = SavedExercisePlan.query.filter_by(user_id=current_user.user_id).all()
+        
+        # Serialize exercise plans
+        serialized_exercise_plans = []
+        for plan in exercise_plans:
+            serialized_plan = {
+                'id': plan.id,
+                'workout': plan.workout,  
+            }
+            serialized_exercise_plans.append(serialized_plan)
+        return jsonify({'workout': serialized_exercise_plans}), 200
+    except Exception as e:
+        print(f"Error fetching meal plans: {e}")
+        return jsonify({'error': 'Failed to fetch exercise plans'}), 500

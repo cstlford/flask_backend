@@ -105,6 +105,21 @@ class MealPlan(db.Model):
 
     def __repr__(self):
         return f"<MealPlan {self.user_id}>"
+    
+
+class SavedExercisePlan(db.Model):
+    __tablename__ = 'ExercisePlans'
+
+    id = db.Column(db.Integer, primary_key=True)  
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)  
+    workout = db.Column(db.JSON, nullable=False)  
+    split = db.Column(db.String(255), nullable=False)
+
+    user = db.relationship('User', backref=db.backref('ExercisePlans', lazy=True))  
+
+    def __repr__(self):
+        return f"<ExercisePlan {self.user_id}>"
+
 class Chat(db.Model):
     __tablename__ = 'Chat'
     id = db.Column(db.Integer, primary_key=True)
