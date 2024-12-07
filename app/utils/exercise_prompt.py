@@ -18,7 +18,7 @@ def generate_workout_prompt(num_plans, split, structure, equipment):
         f"Generate {num_plans} workout plans using the '{split}' split. Each workout should follow the structure: "
         f"{structure}. The equipment available is: {equipment}. For each workout, include:\n"
         "- A title (e.g., 'Push Workout').\n"
-        "- A warmup section with one cardio exercise ex: 5min treadmill, and one relevant exercise ex: arm circles\n"
+        "- A warmup section with one cardio exercise ex: 5 min treadmill, and one relevant exercise ex: arm circles\n"
         "- A list of compound lifts with exercise name, sets, reps, and rest.\n"
         "- A list of isolation lifts with exercise name, sets, reps, and rest.\n"
         "- A cooldown section with appropriate cooldown exercises.\n"

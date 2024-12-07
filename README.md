@@ -1,8 +1,18 @@
 # flask_backend
 
-## instructions
+## Clone Repository
 
-## 1. create a virtual env & activate
+```bash
+git clone https://github.com/cstlford/flask_backend.git
+```
+
+## Navigate to project directory
+
+```bash
+cd path/to/flask_backend
+```
+
+## Create a virtual env & activate
 
 It’s recommended to use a virtual environment to manage your project’s dependencies.
 
@@ -10,17 +20,29 @@ It’s recommended to use a virtual environment to manage your project’s depen
 python3 -m venv venv
 ```
 
-## 2. pip install requirements.txt
+macos/linux
+
+```bash
+source venv/bin/activate
+```
+
+windows
+
+```bash
+venv\scripts\activate
+```
+
+## pip install requirements.txt
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 3. create a mysql server & start
+## create a mysql server & start it
 
 Ensure that MySQL Server is installed and running on your system.
 
-## 4. create database named shapeshift
+## create database named shapeshift
 
 Log into your MySQL server and create the database:
 
@@ -28,15 +50,17 @@ Log into your MySQL server and create the database:
 mysql -p
 ```
 
-\*\*note I only have a password for my config, so you'll need to edit if you want to have a username
+note: by default, yor mysql server may need a username and password.
 
-create database
+```bash
+mysql -u your_username -p
+```
 
 ```bash
 CREATE DATABASE shapeshift;
 ```
 
-## 5. create config.py based on example_config.py
+## create config.py based on example_config.py
 
 Copy the example configuration file to config.py:
 
@@ -44,23 +68,11 @@ Copy the example configuration file to config.py:
 cp example_config.py config.py
 ```
 
-## 6. input server information in config.py
+## input server information in config.py
 
-Edit the config.py file to include your database connection details and other configurations.
+Edit the config.py file to include your database connection details and replace username and password with your MySQL credentials. The secret key can be modified if desired.
 
-```bash
-import os
-
-class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your_secret_key_here'
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://username:password@localhost/shapeshift'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-```
-
-    • Replace username and password with your MySQL credentials.
-    • Replace 'your_secret_key_here' with a secure secret key.
-
-## 7. run export FLASK_APP=run.py in console
+## run export FLASK_APP=run.py in console
 
 Set the FLASK_APP environment variable to point to your application’s entry point.
 
@@ -76,7 +88,7 @@ windows:
 set FLASK_APP=run.py
 ```
 
-## 8. Initialize the Database
+## Initialize the Database
 
 Initialize the Flask-Migrate migration repository:
 
@@ -84,7 +96,7 @@ Initialize the Flask-Migrate migration repository:
 flask db init
 ```
 
-## 9. Generate and Apply Migrations
+## Generate and Apply Migrations
 
 Generate the initial migration script:
 
@@ -92,13 +104,19 @@ Generate the initial migration script:
 flask db migrate -m "Initial migration."
 ```
 
-## 10. run flask db upgrade
+## run flask db upgrade
 
 ```bash
 flask db upgrade
 ```
 
-## 11. run flask application
+## Export OPENAI api key in terminal
+
+```bash
+export OPENAI_API_KEY=""
+```
+
+## run flask application
 
 ```bash
 python run.py
@@ -106,18 +124,18 @@ python run.py
 
 • Ensure the server is running on http://127.0.0.1:5000.
 
-## 12. Test the Backend Endpoint
+## Test the Backend Endpoint
 
 In your browser, navigate to:
 
 ```bash
-http://127.0.0.1:5000/potato
+http://127.0.0.1:5000
 ```
 
 you should see:
 
 ```bash
-hello potato
+Connection successful
 ```
 
-## 13. run frontend & should be good to go
+## run frontend & should be good to go
