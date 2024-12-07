@@ -52,7 +52,7 @@ cp example_config.py config.py
 
 ## 6. input server information in config.py
 
-Edit the config.py file to include your database connection details and replace username and password with your MySQL credentials.
+Edit the config.py file to include your database connection details and replace username and password with your MySQL credentials. The secret key can be modified if desired.
 
 ## Export OPENAI api key in terminal
 
