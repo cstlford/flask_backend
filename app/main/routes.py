@@ -179,6 +179,7 @@ def submit_weight_history():
     try:
         db.session.add(weight_history)
         db.session.commit()
+        return jsonify({"message": "Weight history submitted successfully."}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to submit profile data"}), 500

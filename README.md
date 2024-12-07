@@ -110,10 +110,14 @@ flask db migrate -m "Initial migration."
 flask db upgrade
 ```
 
-## Export OPENAI api key in terminal
+## Export OPENAI and Gemini api keys in terminal
 
 ```bash
 export OPENAI_API_KEY=""
+```
+
+```bash
+export GEMINI_API_KEY=""
 ```
 
 ## run flask application
