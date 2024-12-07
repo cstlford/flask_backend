@@ -463,7 +463,7 @@ def generate_meal_plan1():
                 },
             ],
         ]
-    return jsonify({'ai':meal_plan,'meals':meals}), 200
+    return jsonify({'ai':meal_plan,'meals':meal_plan}), 200
 
 @main_bp.route('/delete-chat-history', methods=['DELETE'])
 @login_required

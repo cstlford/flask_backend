@@ -3,9 +3,9 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 MYSQL_USERNAME = 'root'
-MYSQL_PASSWORD = 'W1shfulthinking'
+MYSQL_PASSWORD = 'root'
 MYSQL_HOST = 'localhost'
-MYSQL_DB = 'shapeshift2'
+MYSQL_DB = 'shapeshift'
 
 class Config:
     SECRET_KEY = 'xxx'  
