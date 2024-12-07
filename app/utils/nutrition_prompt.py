@@ -5,76 +5,14 @@ from dotenv import load_dotenv
 import re
 import google.generativeai as genai
 
+from app.utils.llm_functions import proccess_LLM_output
 
+## Initialize Client ##
 load_dotenv()
 key = os.environ["OPENAI_API_KEY"]
-
 client = OpenAI(api_key= key)
-def generate_meal_plan_llm(user_data):
+##-------------------##
 
-    plan_duration = {user_data['plan_duration']}
-    meal_count = {user_data['meal_count']}
-
-    calories = user_data['calories']
-    carbs = (user_data['macros']['carbs'])
-    fat = (user_data['macros']['fat'])
-    protein = (user_data['macros']['protein'])
-   
-    diet_type = user_data['diet_type']
-    preference_foods = user_data['flavor_preferences']
-    avoid_foods = user_data['foods_to_avoid']
-
-    timeStart = time.time()
-
-    
-
-def calculate(nutrient,output):
-
-        '''
-        LLM Output + Given Nutritional info -> % Error 
-        '''
-
-        sum = 0
-
-        # search for all instances of nutrient 
-        if nutrient == "calories":
-            regex = r"(\\d{1,4})( cals)"
-        else:
-            regex = rf"(\\d{1,4})(g {nutrient})"  # Using raw f-string for dynamic nutrient
-            amounts = re.findall(regex, output)
-
-        # sum nutrient
-        for amount in amounts:
-            sum += int(amount[0])
-        return sum
-
-## FIXME: Suggest tweaks to mealplan based on calories and corresponding macros
-def check(output, calories, fat, carbs, protein):
-
-    '''
-    LLM Output + Given Nutritional info -> % Error 
-    '''
-
-    # extract macro information from given values
-    fat = int(re.search(r"\d{1,4}", str(fat)).group())
-    carbs = int(re.search(r"\d{1,4}", str(carbs)).group())
-    protein = int(re.search(r"\d{1,4}", str(protein)).group())
-
-    # extract calorie/macro sums from generated response
-    gen_calories = calculate("calories",output)
-    gen_fat = calculate("fat",output)
-    gen_carbs = calculate("carbs",output)
-    gen_protein = calculate("protein",output)
-    
-    # supply % error
-    print(
-        f'''
-        Start {calories} => Generated {gen_calories} Error: {abs(calories - gen_calories)/calories}
-        Start {fat} => Generated {gen_fat} Error: {abs(fat - gen_fat)/fat}
-        Start {carbs} => Generated {gen_carbs} Error: {abs(carbs - gen_carbs)/carbs}
-        Start {protein} => Generated {gen_protein} Error: {abs(protein - gen_protein)/protein}
-        '''
-    )
 
 def generate_meal_plan_cheap_llm(data=None):
 
@@ -206,7 +144,6 @@ def generate_meal_plan_cheap_llm(data=None):
         else:
             meals = re.findall(r"### \*.*:", text)
 
-        print(meals)
         
         ## find foods for each meal
         dayObject = []
@@ -250,11 +187,8 @@ def generate_meal_plan_cheap_llm(data=None):
 
             dayObject.append(mealObject)
         plan.append(dayObject)
-        print("Done, shouldn't take too long now")
+    print(plan_number)
     return(plan)
-
-
-
 
 def generate_meal_plan_expensive(data=None):
     
@@ -296,8 +230,7 @@ def generate_meal_plan_expensive(data=None):
     #LLM generation 
 
     client = OpenAI()
-    
-
+    '''
     ## Prompt 1 -> generate foodlist 
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -321,7 +254,7 @@ def generate_meal_plan_expensive(data=None):
 
 
     foodlist = completion.choices[0].message.content
-    
+    '''
     
     ## Prompt 2 -> build nutrition plan
     completion1 = client.chat.completions.create(
@@ -334,8 +267,6 @@ def generate_meal_plan_expensive(data=None):
                 
                 f"""
                     Step 1: Create a mealplan for a(n) {diet_type} client for {plan_number} day(s) with {meal_number} meals
-                        Use the following foods to create the mealplan:
-                        {foodlist}
                         Make sure to include all {plan_number} days in the plan
                         
 
@@ -346,7 +277,7 @@ def generate_meal_plan_expensive(data=None):
                         Daily Protein: {protein}
 
                     Step 3: Format the output to look like the following sample (there can be more than 2 foods each meal if needed)           
-                            Feel free to add/subtract the amount of meals below, as long as there are {meal_number} main meals
+                            There should be exactly {meal_number} meals. Exclude snacks if needed
                             Only include '*' in front of meal names
                             "cals" MUST be used instead of "calories" for foods
                             "calories" must be used in daily total
@@ -396,107 +327,39 @@ def generate_meal_plan_expensive(data=None):
                         - Step 1: ... <br>
                         - Step 2: ... <br>
                         - Step 3: ... <br>
-                        .
-                        ### Totals: - Calories: x - Fat: [x]g - Carbs: [x]g - Protein: [x]g <br>
+                        
+                Only include the above format in your response, leave out any recommendations or totals.
                 """
             }
         ]
     )
 
     mealplan = completion1.choices[0].message.content
+
     print(mealplan)
 
-    # format data
-    meals = []
-    plan = []
+    plan = proccess_LLM_output(mealplan,calories,protein,fat,carbs)
 
-    startpoint = 0
-
-    for day in range(plan_number):
-        text = mealplan[startpoint:]
-
-        ## find meals for day
-        if day != plan_number-1:
-            span = re.search(f"## Day {day+2} <br>\n", text)
-            meals = re.findall(r"### \*.*:", text[:span.end()])
-
-            ## Check output for accuracy
-            check(text[:span.end()], calories, fat, carbs, protein)
-        else:
-            meals = re.findall(r"### \*.*:", text)
-
-            ## Check output for accuracy
-            check(text, calories, fat, carbs, protein)
-
-        
-        ## find foods for each meal
-        dayObject = []
-        for meal in meals:
-            meal_cals = 0
-            meal_fat = 0
-            meal_carbs = 0
-            meal_protein = 0
-
-            text = mealplan[startpoint:]
-
-            ### clean meals
-            index = meal.find(':')
-            meal = meal[5:index]
-            
-            ### get meal group 
-            span = re.search(r"### \*.*: <br>\n(-.* <br>\n)*", text)
-            
-            
-            ### get ingredients
-            ingredients = re.findall(r"-.* <br>\n", text[span.start():span.end()])
-
-
-            ### clean ingredients
-            for index in range(len(ingredients)):
-                # get ingredient properties (name, # cals, # fat, # carbs, # protein)
-                ingredient = re.search(r"-(.*) \[(.*) cals, (.*)g fat, (.*)g carbs, (.*)g protein\]", ingredients[index])
-
-
-                # add name/amount of ingredient to ingredients list
-                ingredients[index] = ingredient.group(1)
-
-                # add nutritional info to meal variables
-                meal_cals += float(ingredient.group(2))
-                meal_fat += float(ingredient.group(3))
-                meal_carbs += float(ingredient.group(4))
-                meal_protein += float(ingredient.group(5))
-
-            
-            ### get directions group
-            span = re.search(r"####.*: <br>\n(- Step.*<br>\n)*", text)
-
-            ### get directions
-            directions = re.findall(r"-.* <br>\n", text[span.start():span.end()])
-
-            ### clean directions
-            for index in range(len(directions)):
-                directions[index] = re.search(r"- (Step.*)<br>\n*", directions[index]).group(1)
-
-            ### prepare for next cycle
-            startpoint += span.end() 
-            
-            ### set object
-            mealObject = {"title" : meal,
-                            "calories": meal_cals,
-                            "macros": {"protein": meal_protein, "carbs": meal_carbs, "fat": meal_fat},
-                            "ingredients": ingredients,
-                            "directions" : directions
-                        }
-            dayObject.append(mealObject)
-        plan.append(dayObject)
-
-        end = time.time()
-
+    end = time.time()
     print(f"Time to execute: {end - start}")
-    print(plan)
 
     return plan
 
+## testing
+'''
+data = {'calories':2600,
+        'macros':{'carbs':300,
+                  'fat':150, 
+                  'protein':170},
+        'diet_type':"Omnivore",
+        'flavor_preferences':'',
+        'meal_count':3,
+        'plan_duration':3,
+        'foods_to_avoid':''
+                  }
+
+print(generate_meal_plan_expensive(data))
+'''
 
 
 def chat_with_coach(user_info, user_message, chat_history):
