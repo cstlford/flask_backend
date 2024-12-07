@@ -20,9 +20,6 @@ from app.utils.nutrition_prompt import generate_meal_plan_cheap_llm, generate_me
 @main_bp.route('/', methods=['Get'])
 def main():
     return 'Connection Successful'
-@main_bp.route('/potato', methods=['GET'])
-def potato():
-    return 'hello potato'
 
 
 @main_bp.route('/submit-profile-data', methods=['POST'])

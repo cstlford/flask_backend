@@ -10,6 +10,18 @@ It’s recommended to use a virtual environment to manage your project’s depen
 python3 -m venv venv
 ```
 
+macos/linux
+
+```bash
+source venv/bin/activate
+```
+
+windows
+
+```bash
+venv\scripts\activate
+```
+
 ## 2. pip install requirements.txt
 
 ```bash
@@ -28,13 +40,7 @@ Log into your MySQL server and create the database:
 mysql -p
 ```
 
-\*\*note I only have a password for my config, so you'll need to edit if you want to have a username
-
-create database
-
-```bash
-CREATE DATABASE shapeshift;
-```
+\*\*note: by default, yor mysql server may need a username and password.
 
 ## 5. create config.py based on example_config.py
 
@@ -46,19 +52,13 @@ cp example_config.py config.py
 
 ## 6. input server information in config.py
 
-Edit the config.py file to include your database connection details and other configurations.
+Edit the config.py file to include your database connection details and replace username and password with your MySQL credentials.
+
+## Export OPENAI api key in terminal
 
 ```bash
-import os
-
-class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your_secret_key_here'
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://username:password@localhost/shapeshift'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+export OPENAI_API_KEY=""
 ```
-
-    • Replace username and password with your MySQL credentials.
-    • Replace 'your_secret_key_here' with a secure secret key.
 
 ## 7. run export FLASK_APP=run.py in console
 
@@ -111,13 +111,13 @@ python run.py
 In your browser, navigate to:
 
 ```bash
-http://127.0.0.1:5000/potato
+http://127.0.0.1:5000
 ```
 
 you should see:
 
 ```bash
-hello potato
+Connection successful
 ```
 
 ## 13. run frontend & should be good to go
